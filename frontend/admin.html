@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReRover - LFS | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/admin-styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">ReRover - LFS</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="#lost">Lost</a></li>
+                        <li><a href="#found">Found</a></li>
+                        <li><a href="about.html">About us</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <a href="report.html" class="report-btn">Report an item</a>
+                    <div class="profile-dropdown-container">
+                        <button class="profile-btn" onclick="toggleProfileDropdown()">
+                            <img src="/images/admin-avatar.png" alt="Admin Profile" class="profile-btn-img">
+                        </button>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="dropdown-menu">
+                                <a href="admin-profile.html" class="dropdown-item">
+                                    <span class="dropdown-icon">👤</span>
+                                    <span>Admin Profile</span>
+                                </a>
+                                <a href="#" class="dropdown-item logout-item" onclick="logout()">
+                                    <span class="dropdown-icon">🚪</span>
+                                    <span>Log out</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- Admin Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-content">
+                        <div class="profile-section">
+                            <div class="profile-avatar">
+                                <img src="/images/admin-avatar.png" alt="Admin Avatar" id="sidebarAvatar">
+                            </div>
+                        </div>
+                        
+                        <nav class="sidebar-nav">
+                            <button class="nav-item active" data-panel="manage-users">
+                                <span class="nav-text">Manage Users</span>
+                            </button>
+                            <button class="nav-item" data-panel="manage-items">
+                                <span class="nav-text">Manage Items</span>
+                            </button>
+                            <button class="nav-item" data-panel="approve-returns">
+                                <span class="nav-text">Approve Returns</span>
+                            </button>
+                            <button class="nav-item" data-panel="announcements">
+                                <span class="nav-text">Announcements</span>
+                            </button>
+                            <button class="nav-item logout" onclick="logout()">
+                                <span class="nav-text">Log out</span>
+                            </button>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Manage Users Panel -->
+                    <div class="panel active" id="manage-users-panel">
+                        <div class="panel-header">
+                            <h2>Manage Users</h2>
+                            <p>View and manage all registered users</p>
+                        </div>
+                        
+                        <div class="panel-actions">
+                            <button class="btn-primary" onclick="openAddUserModal()">Add User</button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Student ID</th>
+                                        <th>Phone</th>
+                                        <th>Registration Date</th>
+                                        <th>Status</th>
+                                        <th>Merit Points</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Dynamic content will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Manage Items Panel -->
+                    <div class="panel" id="manage-items-panel">
+                        <div class="panel-header">
+                            <h2>Manage Items</h2>
+                            <p>View and manage all reported items</p>
+                        </div>
+                        
+                        <div class="panel-actions">
+                            <button class="btn-primary" onclick="openAddItemModal()">Add Item</button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table" id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Location</th>
+                                        <th>Date Reported</th>
+                                        <th>Reporter</th>
+                                        <th>Status</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsTableBody">
+                                    <!-- Dynamic content will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Approve Returns Panel -->
+                    <div class="panel" id="approve-returns-panel">
+                        <div class="panel-header">
+                            <h2>Approve Returns</h2>
+                            <p>Review and approve confirmed item matches</p>
+                        </div>
+                        
+                        <div class="returns-grid" id="returnsGrid">
+                            <!-- Dynamic content will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Announcements Panel -->
+                    <div class="panel" id="announcements-panel">
+                        <div class="panel-header">
+                            <h2>Announcements</h2>
+                            <p>Create and manage announcements for the homepage</p>
+                        </div>
+                        
+                        <div class="announcement-form">
+                            <div class="form-group">
+                                <label for="announcementTitle">Announcement Title</label>
+                                <input type="text" id="announcementTitle" placeholder="Enter announcement title">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="announcementContent">Content</label>
+                                <textarea id="announcementContent" rows="4" placeholder="Enter announcement content"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="announcementPriority">Priority</label>
+                                <select id="announcementPriority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button class="btn-secondary" onclick="clearAnnouncementForm()">Clear</button>
+                                <button class="btn-primary" onclick="publishAnnouncement()">Publish Announcement</button>
+                            </div>
+                        </div>
+                        
+                        <div class="announcements-list">
+                            <h3>Published Announcements</h3>
+                            <div id="announcementsList">
+                                <!-- Dynamic content will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="userFullName">Full Name</label>
+                        <input type="text" id="userFullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Email</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userStudentId">Student ID</label>
+                        <input type="text" id="userStudentId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPhone">Phone</label>
+                        <input type="tel" id="userPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="userStatus">Status</label>
+                        <select id="userStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Item</h3>
+                <button class="modal-close" onclick="closeModal('addItemModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addItemForm">
+                    <div class="form-group">
+                        <label for="itemName">Item Name</label>
+                        <input type="text" id="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemCategory">Category</label>
+                        <select id="itemCategory">
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="books">Books</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescription">Description</label>
+                        <textarea id="itemDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemLocation">Location</label>
+                        <input type="text" id="itemLocation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemType">Type</label>
+                        <select id="itemType">
+                            <option value="lost">Lost</option>
+                            <option value="found">Found</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemReporter">Reporter Email</label>
+                        <input type="email" id="itemReporter" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addItemModal')">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Item</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal (Reusable) -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editModalTitle">Edit Item</h3>
+                <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="editModalBody">
+                <!-- Dynamic content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="contact-info">
+                    <h3>Contact us:</h3>
+                    <div class="contact-details">
+                        <p>Email: info@positivus.com</p>
+                        <p>Phone: 555-567-8901</p>
+                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
+                    </div>
+                </div>
+                
+                <div class="newsletter">
+                    <input type="email" placeholder="Email" id="newsletterEmail">
+                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 Positivus. All Rights Reserved.</p>
+                <a href="#privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/admin-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReRover - LFS | About Us</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/aboutUs.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">ReRover - LFS</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="#lost">Lost</a></li>
+                        <li><a href="#found">Found</a></li>
+                        <li><a href="aboutUs.html">About us</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <a href="#report" class="report-btn">Report an Item</a>
+                    <button class="profile-btn" onclick="toggleProfile()"></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>We are ♦ReRover!</h1>
+                        <div class="hero-features">
+                            <div class="feature-item">
+                                <span class="feature-number">01</span>
+                                <span class="feature-text">Lost and Found System</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-number">02</span>
+                                <span class="feature-text">Members Start-up</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-illustration">
+                        <img src="/placeholder.svg?height=400&width=400" alt="ReRover team illustration with trophy" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <section class="team-section">
+                <h2 class="section-title">Our Team</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <span class="team-name">Van Anh</span>
+                            <span class="team-star">✦</span>
+                        </div>
+                        <img src="/placeholder.svg?height=200&width=300" alt="Van Anh profile photo" class="team-photo" />
+                        <p class="team-role">Co-Founder<br>Front-end Dev</p>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-card-header">
+                            <span class="team-name">Bao Duy</span>
+                            <span class="team-star">✦</span>
+                        </div>
+                        <img src="/placeholder.svg?height=200&width=300" alt="Bao Duy profile photo" class="team-photo" />
+                        <p class="team-role">Co-Founder<br>Back-end Dev</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Join Team Section -->
+            <section class="join-team-section">
+                <div class="join-team-content">
+                    <h2>Join Our Team</h2>
+                    <p>At Positivus, we strive on innovation and collaboration. We're always looking for passionate individuals to join our team and help businesses grow. Ready to make an impact?</p>
+                    <button class="explore-btn" onclick="explorecareers()">Explore Careers</button>
+                </div>
+                <div class="join-team-illustration">
+                    <img src="/placeholder.svg?height=300&width=400" alt="Team collaboration illustration" />
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="contact-section">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-container">
+                    <div class="contact-form">
+                        <form id="contactForm" onsubmit="handleContactForm(event)">
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="sayHi" name="contactType" value="sayHi" checked>
+                                    <label for="sayHi">Say Hi</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="getQuote" name="contactType" value="getQuote">
+                                    <label for="getQuote">Get a Quote</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contactName">Name</label>
+                                <input type="text" id="contactName" name="contactName" placeholder="Name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contactEmail">Email*</label>
+                                <input type="email" id="contactEmail" name="contactEmail" placeholder="Email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contactMessage">Message*</label>
+                                <textarea id="contactMessage" name="contactMessage" placeholder="Message" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="send-btn">Send Message</button>
+                        </form>
+                    </div>
+                    <div class="contact-illustration">
+                        <img src="/placeholder.svg?height=400&width=400" alt="Contact illustration with stars" />
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="contact-info">
+                    <h3>Contact us:</h3>
+                    <div class="contact-details">
+                        <p>Email: info@positivus.com</p>
+                        <p>Phone: 555-567-8901</p>
+                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
+                    </div>
+                </div>
+                
+                <div class="newsletter">
+                    <input type="email" placeholder="Email" id="newsletterEmail">
+                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 Positivus. All Rights Reserved.</p>
+                <a href="#privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/aboutUs.js"></script>
+</body>
+</html>

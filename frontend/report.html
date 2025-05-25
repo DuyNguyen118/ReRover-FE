@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReRover - LFS | Report an Item</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/report-styles.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">ReRover - LFS</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="#lost">Lost</a></li>
+                        <li><a href="#found">Found</a></li>
+                        <li><a href="about.html">About us</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <a href="report.html" class="report-btn active">Report an item</a>
+                    <button class="profile-btn" onclick="toggleProfile()"></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Report Type Toggle -->
+            <section class="report-toggle-section">
+                <div class="toggle-buttons">
+                    <button class="toggle-btn active" data-type="lost" onclick="switchReportType('lost')">
+                        Report Lost Item
+                    </button>
+                    <button class="toggle-btn" data-type="found" onclick="switchReportType('found')">
+                        Report Found Item
+                    </button>
+                </div>
+            </section>
+
+            <!-- Report Form -->
+            <section class="report-form-section">
+                <div class="form-container">
+                    <form id="reportForm" onsubmit="handleReportSubmit(event)">
+                        <div class="form-group">
+                            <label for="itemName">Name</label>
+                            <input type="text" id="itemName" name="itemName" placeholder="Name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="books">Books</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="documents">Documents</option>
+                                <option value="keys">Keys</option>
+                                <option value="bags">Bags</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" placeholder="Please provide a detailed description of the item..." rows="5" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" placeholder="Where was the item lost/found? (e.g., A1, 612)" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactInfo">Contact Information</label>
+                            <input type="email" id="contactInfo" name="contactInfo" placeholder="Student email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemImage">Image</label>
+                            <div class="file-upload-container">
+                                <input type="file" id="itemImage" name="itemImage" accept="image/*" onchange="handleFileSelect(event)">
+                                <button type="button" class="file-upload-btn" onclick="document.getElementById('itemImage').click()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21,15 16,10 5,21"></polyline>
+                                    </svg>
+                                    Choose Image
+                                </button>
+                                <span class="file-name" id="fileName">No file selected</span>
+                            </div>
+                            <div class="image-preview" id="imagePreview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dateTime">Date & Time</label>
+                            <input type="datetime-local" id="dateTime" name="dateTime" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="additionalInfo">Additional Information</label>
+                            <textarea id="additionalInfo" name="additionalInfo" placeholder="Any additional details that might help..." rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <span class="submit-text">Submit Report</span>
+                            <div class="loading-spinner" style="display: none;">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="contact-info">
+                    <h3>Contact us:</h3>
+                    <div class="contact-details">
+                        <p>Email: info@positivus.com</p>
+                        <p>Phone: 555-567-8901</p>
+                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
+                    </div>
+                </div>
+                
+                <div class="newsletter">
+                    <input type="email" placeholder="Email" id="newsletterEmail">
+                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 Positivus. All Rights Reserved.</p>
+                <a href="#privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="report-script.js"></script>
+</body>
+</html>

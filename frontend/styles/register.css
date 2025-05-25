@@ -1,0 +1,73 @@
+/* Additional styles for register page */
+.register-container {
+    background: #f8f8f8;
+    border-radius: 30px;
+    padding: 60px;
+    min-height: 500px;
+}
+
+.register-form-section h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 10px;
+}
+
+.register-form-section .subtitle {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.register-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.register-btn {
+    padding: 15px 30px;
+    background: #B9FF66;
+    color: #000000;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.register-btn:hover {
+    background: #a8e055;
+}
+
+.register-btn:disabled {
+    background: #ddd;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments for register page */
+@media (max-width: 768px) {
+    .register-form {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .register-container {
+        padding: 40px 30px;
+    }
+
+    .register-form-section h1 {
+        font-size: 36px;
+    }
+}
+    

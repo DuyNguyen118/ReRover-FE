@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReRover - LFS | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/user-styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">ReRover - LFS</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="#lost">Lost</a></li>
+                        <li><a href="#found">Found</a></li>
+                        <li><a href="about.html">About us</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <a href="report.html" class="report-btn">Report an item</a>
+                    <button class="profile-btn" onclick="toggleProfile()"></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-content">
+                        <div class="profile-section">
+                            <div class="profile-avatar">
+                                <img src="/images/user-avatar.png" alt="User Avatar" id="sidebarAvatar">
+                            </div>
+                        </div>
+                        
+                        <nav class="sidebar-nav">
+                            <button class="nav-item" data-panel="account">
+                                <span class="nav-text">Account</span>
+                            </button>
+                            <button class="nav-item active" data-panel="matches">
+                                <span class="nav-text">Matches</span>
+                            </button>
+                            <button class="nav-item" data-panel="merits">
+                                <span class="nav-text">Merits</span>
+                            </button>
+                            <button class="nav-item" data-panel="settings">
+                                <span class="nav-text">Settings</span>
+                            </button>
+                            <button class="nav-item logout" onclick="logout()">
+                                <span class="nav-text">Log out</span>
+                            </button>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Matches Panel -->
+                    <div class="panel active" id="matches-panel">
+                        <div class="panel-header">
+                            <h2>Item Matches</h2>
+                            <p>Items that might match your lost/found reports</p>
+                        </div>
+                        
+                        <div class="matches-grid">
+                            <div class="match-card">
+                                <div class="match-header">
+                                    <span class="match-status">Potential Match</span>
+                                    <span class="match-confidence">95% Match</span>
+                                </div>
+                                <div class="match-content">
+                                    <div class="item-comparison">
+                                        <div class="your-item">
+                                            <h4>Your Lost Item</h4>
+                                            <img src="/placeholder.svg?height=120&width=120" alt="Your phone">
+                                            <div class="item-details">
+                                                <p><strong>Name:</strong> iPhone 13</p>
+                                                <p><strong>Location:</strong> Library A1</p>
+                                                <p><strong>Date:</strong> Dec 15, 2023</p>
+                                            </div>
+                                        </div>
+                                        <div class="match-arrow">↔️</div>
+                                        <div class="matched-item">
+                                            <h4>Found Item</h4>
+                                            <img src="/placeholder.svg?height=120&width=120" alt="Found phone">
+                                            <div class="item-details">
+                                                <p><strong>Name:</strong> Phone</p>
+                                                <p><strong>Location:</strong> A1, 612</p>
+                                                <p><strong>Date:</strong> Dec 15, 2023</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="match-actions">
+                                        <button class="btn-secondary" onclick="viewMatchDetails(1)">View Details</button>
+                                        <button class="btn-primary" onclick="confirmMatch(1)">Confirm Match</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="match-card">
+                                <div class="match-header">
+                                    <span class="match-status">Possible Match</span>
+                                    <span class="match-confidence">78% Match</span>
+                                </div>
+                                <div class="match-content">
+                                    <div class="item-comparison">
+                                        <div class="your-item">
+                                            <h4>Your Found Item</h4>
+                                            <img src="/placeholder.svg?height=120&width=120" alt="Your keys">
+                                            <div class="item-details">
+                                                <p><strong>Name:</strong> Car Keys</p>
+                                                <p><strong>Location:</strong> Parking Lot B</p>
+                                                <p><strong>Date:</strong> Dec 14, 2023</p>
+                                            </div>
+                                        </div>
+                                        <div class="match-arrow">↔️</div>
+                                        <div class="matched-item">
+                                            <h4>Lost Item</h4>
+                                            <img src="/placeholder.svg?height=120&width=120" alt="Lost keys">
+                                            <div class="item-details">
+                                                <p><strong>Name:</strong> Keys</p>
+                                                <p><strong>Location:</strong> Near Building B</p>
+                                                <p><strong>Date:</strong> Dec 14, 2023</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="match-actions">
+                                        <button class="btn-secondary" onclick="viewMatchDetails(2)">View Details</button>
+                                        <button class="btn-primary" onclick="confirmMatch(2)">Confirm Match</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Panel -->
+                    <div class="panel" id="account-panel">
+                        <div class="panel-header">
+                            <h2>Account Information</h2>
+                            <p>Manage your profile and account settings</p>
+                        </div>
+                        
+                        <div class="account-content">
+                            <div class="profile-section-main">
+                                <div class="profile-photo-section">
+                                    <div class="profile-photo">
+                                        <img src="/images/user-avatar.png" alt="Profile Photo" id="profilePhoto">
+                                        <button class="photo-edit-btn" onclick="changeProfilePhoto()">
+                                            <span>📷</span>
+                                        </button>
+                                    </div>
+                                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                                </div>
+                                
+                                <div class="profile-form">
+                                    <div class="form-group">
+                                        <label for="fullName">Full Name</label>
+                                        <input type="text" id="fullName" value="John Doe" placeholder="Enter your full name">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="email">Email Address</label>
+                                        <input type="email" id="email" value="john.doe@university.edu" placeholder="Enter your email">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="studentId">Student ID</label>
+                                        <input type="text" id="studentId" value="STU123456" placeholder="Enter your student ID">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <input type="tel" id="phone" value="+1 (555) 123-4567" placeholder="Enter your phone number">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="currentPassword">Current Password</label>
+                                        <input type="password" id="currentPassword" placeholder="Enter current password">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="newPassword">New Password</label>
+                                        <input type="password" id="newPassword" placeholder="Enter new password">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirm New Password</label>
+                                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button class="btn-secondary" onclick="resetForm()">Reset</button>
+                                        <button class="btn-primary" onclick="updateProfile()">Update Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Merits Panel -->
+                    <div class="panel" id="merits-panel">
+                        <div class="panel-header">
+                            <h2>Merit Points</h2>
+                            <p>Your achievements and contributions to the community</p>
+                        </div>
+                        
+                        <div class="merits-content">
+                            <div class="merit-hero">
+                                <div class="merit-illustration">
+                                    <div class="trophy-container">
+                                        <div class="trophy">🏆</div>
+                                        <div class="sparkles">✨</div>
+                                    </div>
+                                </div>
+                                <div class="merit-message">
+                                    <h3>Wow! You earned</h3>
+                                    <div class="merit-points">
+                                        <span class="points-number" id="totalPoints">1,250</span>
+                                        <span class="points-text">merit points</span>
+                                    </div>
+                                    <p>Keep up the great work helping others!</p>
+                                </div>
+                            </div>
+                            
+                            <div class="merit-breakdown">
+                                <h4>How you earned your points:</h4>
+                                <div class="merit-items">
+                                    <div class="merit-item">
+                                        <div class="merit-info">
+                                            <h5>Items Successfully Returned</h5>
+                                            <p>5 items × 200 points each</p>
+                                        </div>
+                                        <div class="merit-value">+1,000</div>
+                                    </div>
+                                    
+                                    <div class="merit-item">
+                                        <div class="merit-info">
+                                            <h5>Items Reported</h5>
+                                            <p>10 items × 15 points each</p>
+                                        </div>
+                                        <div class="merit-value">+150</div>
+                                    </div>
+                                    
+                                    <div class="merit-item">
+                                        <div class="merit-info">
+                                            <h5>Community Helper Badge</h5>
+                                            <p>Special recognition</p>
+                                        </div>
+                                        <div class="merit-value">+100</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="merit-progress">
+                                <h4>Next Achievement</h4>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                                <p>250 more points to reach <strong>Super Helper</strong> status!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Panel -->
+                    <div class="panel" id="settings-panel">
+                        <div class="panel-header">
+                            <h2>Settings</h2>
+                            <p>Customize your experience</p>
+                        </div>
+                        
+                        <div class="settings-content">
+                            <div class="settings-section">
+                                <h4>Appearance</h4>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h5>Dark Mode</h5>
+                                        <p>Switch between light and dark themes</p>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h4>Language & Region</h4>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h5>Language</h5>
+                                        <p>Choose your preferred language</p>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select id="languageSelect" onchange="changeLanguage()">
+                                            <option value="en">English</option>
+                                            <option value="es">Español</option>
+                                            <option value="fr">Français</option>
+                                            <option value="de">Deutsch</option>
+                                            <option value="zh">中文</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h4>Notifications</h4>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h5>Email Notifications</h5>
+                                        <p>Receive updates about matches and messages</p>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="emailNotifications" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h5>Push Notifications</h5>
+                                        <p>Get instant alerts on your device</p>
+                                    </div>
+                                    <div class="setting-control">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="pushNotifications" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h4>Privacy</h4>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h5>Profile Visibility</h5>
+                                        <p>Control who can see your profile information</p>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select id="privacySelect">
+                                            <option value="public">Public</option>
+                                            <option value="university">University Only</option>
+                                            <option value="private">Private</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-actions">
+                                <button class="btn-secondary" onclick="resetSettings()">Reset to Default</button>
+                                <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Match Details Modal -->
+    <div class="modal" id="matchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Match Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="contact-info">
+                    <h3>Contact us:</h3>
+                    <div class="contact-details">
+                        <p>Email: info@positivus.com</p>
+                        <p>Phone: 555-567-8901</p>
+                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
+                    </div>
+                </div>
+                
+                <div class="newsletter">
+                    <input type="email" placeholder="Email" id="newsletterEmail">
+                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2023 Positivus. All Rights Reserved.</p>
+                <a href="#privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/user-script.js"></script>
+</body>
+</html>
