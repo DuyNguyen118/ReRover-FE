@@ -3,52 +3,101 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     
     if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const studentId = document.getElementById('student_id').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Logging in...';
+            
+            try {
+                console.log('Sending login request...');
+                
+                // Use your API utility for the request
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        password: password
+                    }),
+                    credentials: 'include'  // Important for cookies/sessions
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Save the token to localStorage
+                    if (data.token) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    
+                    console.log('Login successful, redirecting to home...');
+                    window.location.href = '/home.html';
+                } else {
+                    throw new Error(data.message || 'Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'An error occurred during login. Please try again.');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
     }
 });
 
-async function handleLogin(event) {
-    event.preventDefault();
-    
-    const studentId = document.getElementById('studentId').value;
-    const password = document.getElementById('password').value;
-    
-    if (!studentId || !password) {
-        alert('Please fill in all fields');
-        return;
+// Helper function to show error messages
+function showError(message) {
+    // Remove any existing error messages
+    const existingError = document.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
     }
     
-    try {
-        const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `username=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`,
-            credentials: 'include' // Important for cookies/session
-        });
-        
-        if (response.ok) {
-            window.location.href = '/dashboard'; // Redirect on success
-        } else {
-            const errorElement = document.getElementById('error');
-            if (errorElement) {
-                errorElement.textContent = 'Invalid username or password';
-            } else {
-                alert('Invalid username or password');
-            }
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        const errorElement = document.getElementById('error');
-        if (errorElement) {
-            errorElement.textContent = 'An error occurred. Please try again.';
-        } else {
-            alert('An error occurred. Please try again.');
-        }
-    }
+    // Create and show new error message
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = '#ff4444';
+    errorElement.style.marginTop = '10px';
+    errorElement.textContent = message;
+    
+    const form = document.getElementById('loginForm');
+    form.appendChild(errorElement);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        errorElement.style.opacity = '0';
+        setTimeout(() => errorElement.remove(), 300);
+    }, 5000);
 }
 
+// To get the current user
+const currentUser = JSON.parse(localStorage.getItem('user'));
+console.log('Current user:', currentUser);
+
+// To check if user is logged in
+function isAuthenticated() {
+    return localStorage.getItem('token') !== null;
+}
+
+// To log out
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
 // Newsletter subscription
 function subscribeNewsletter() {
     const email = document.getElementById('newsletterEmail').value;
