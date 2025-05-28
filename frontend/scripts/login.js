@@ -1,36 +1,52 @@
-// Login form handler
-function handleLogin(event) {
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+});
+
+async function handleLogin(event) {
     event.preventDefault();
     
     const studentId = document.getElementById('studentId').value;
     const password = document.getElementById('password').value;
     
-    // Basic validation
     if (!studentId || !password) {
         alert('Please fill in all fields');
         return;
     }
     
-    // Simulate login process
-    console.log('Login attempt:', { studentId, password });
-    
-    // Show loading state
-    const loginBtn = document.querySelector('.login-btn');
-    const originalText = loginBtn.textContent;
-    loginBtn.textContent = 'Logging in...';
-    loginBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        loginBtn.textContent = originalText;
-        loginBtn.disabled = false;
+    try {
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `username=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`,
+            credentials: 'include' // Important for cookies/session
+        });
         
-        // For demo purposes, show success message
-        alert('Login successful! (This is a demo)');
-        
-        // In a real app, you would redirect or update the UI
-        // window.location.href = '/dashboard';
-    }, 1500);
+        if (response.ok) {
+            window.location.href = '/dashboard'; // Redirect on success
+        } else {
+            const errorElement = document.getElementById('error');
+            if (errorElement) {
+                errorElement.textContent = 'Invalid username or password';
+            } else {
+                alert('Invalid username or password');
+            }
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        const errorElement = document.getElementById('error');
+        if (errorElement) {
+            errorElement.textContent = 'An error occurred. Please try again.';
+        } else {
+            alert('An error occurred. Please try again.');
+        }
+    }
 }
 
 // Newsletter subscription
