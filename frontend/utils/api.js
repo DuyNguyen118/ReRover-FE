@@ -6,30 +6,16 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true // Important: This is required for cookies to be sent with requests
 });
-
-// Add a request interceptor to include the auth token in requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Add a response interceptor to handle common errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized (e.g., token expired)
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Handle unauthorized (e.g., session expired)
+      window.location.href = '/login.html';
     }
     return Promise.reject(error);
   }
@@ -76,14 +62,9 @@ export const remove = async (url) => {
   }
 };
 
-export const setAuthToken = (token) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    localStorage.setItem('token', token);
-  } else {
-    delete api.defaults.headers.common['Authorization'];
-    localStorage.removeItem('token');
-  }
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  return document.cookie.split(';').some((cookie) => cookie.trim().startsWith('JSESSIONID='));
 };
 
 export default api;
