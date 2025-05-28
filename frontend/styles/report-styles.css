@@ -1,134 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Outfit', sans-serif;
-    background-color: #FFFFFF;
-    color: #000000;
-    line-height: 1.6;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Header Styles */
-header {
-    padding: 20px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: #000000;
-    text-decoration: none;
-}
-
-.logo::before {
-    content: "♦";
-    color: #B9FF66;
-    margin-right: 10px;
-    font-size: 28px;
-}
-
-nav {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 30px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #000000;
-    font-weight: 400;
-    position: relative;
-    padding: 5px 0;
-    transition: color 0.3s ease;
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: #B9FF66;
-    transition: width 0.3s ease;
-}
-
-.nav-links a:hover {
-    color: #B9FF66;
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.report-btn {
-    padding: 12px 24px;
-    border: 2px solid #000000;
-    background: transparent;
-    color: #000000;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.report-btn:hover,
-.report-btn.active {
-    background: #000000;
-    color: #FFFFFF;
-}
-
-.profile-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #000000;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.profile-btn:hover {
-    transform: scale(1.1);
-}
-
-/* Main Content */
-.main-content {
-    padding: 30px 0 60px;
-}
-
-/* Report Toggle Section */
+/* FIXED Report Toggle Section - Separated buttons with gap */
 .report-toggle-section {
     display: flex;
     justify-content: center;
@@ -137,14 +7,12 @@ nav {
 
 .toggle-buttons {
     display: flex;
-    gap: 0;
+    gap: 15px; /* Added space between buttons */
     border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-btn {
-    padding: 15px 30px;
+    padding: 18px 50px; /* Made wider */
     border: none;
     font-size: 16px;
     font-weight: 600;
@@ -153,8 +21,28 @@ nav {
     font-family: 'Outfit', sans-serif;
     position: relative;
     overflow: hidden;
+    min-width: 220px; /* Wider buttons */
+    white-space: nowrap;
+    border-radius: 10px; /* Rounded corners for separated buttons */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Light shadow for all buttons */
 }
 
+/* Default state - inactive buttons are black */
+.toggle-btn {
+    background: #292A32;
+    color: #FFFFFF;
+    border: none; /* No outline */
+}
+
+/* Active state - green without outline */
+.toggle-btn.active {
+    background: #B9FF66;
+    color: #000000;
+    border: none; /* No outline */
+    box-shadow: 0 4px 15px rgba(185, 255, 102, 0.4);
+}
+
+/* Newsletter-style hover effects */
 .toggle-btn::before {
     content: '';
     position: absolute;
@@ -170,33 +58,41 @@ nav {
     left: 100%;
 }
 
-.toggle-btn[data-type="lost"] {
-    background: #292A32;
-    color: #FFFFFF;
+/* Hover effects - similar to newsletter button */
+.toggle-btn:not(.active):hover {
+    background: #1a1b21; /* Darker black for inactive hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.toggle-btn[data-type="found"] {
-    background: #B9FF66;
-    color: #000000;
+.toggle-btn.active:hover {
+    background: #a8e055; /* Darker green for active hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(185, 255, 102, 0.4);
 }
 
-.toggle-btn:not(.active) {
-    opacity: 0.6;
-    transform: scale(0.95);
+/* Responsive Design for toggle buttons */
+@media (max-width: 768px) {
+    .toggle-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 400px; /* Wider on mobile too */
+    }
+
+    .toggle-btn {
+        padding: 15px 30px;
+        font-size: 14px;
+        min-width: auto;
+    }
 }
 
-.toggle-btn.active {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+@media (max-width: 480px) {
+    .toggle-btn {
+        padding: 12px 20px;
+        font-size: 13px;
+    }
 }
-
-.toggle-btn:hover {
-    opacity: 1;
-    transform: translateY(-2px) scale(1.02);
-}
-
-/* Form Section */
+/* Form Section - keeping existing styles */
 .report-form-section {
     display: flex;
     justify-content: center;
@@ -526,171 +422,23 @@ nav {
     75% { transform: translateX(5px); }
 }
 
-/* Footer Styles */
-footer {
-    background: #292A32;
-    color: #FFFFFF;
-    padding: 60px 0 30px;
-    position: relative;
-}
-
-footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #B9FF66, #292A32, #B9FF66);
-}
-
-.footer-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    margin-bottom: 40px;
-}
-
-.contact-info h3 {
-    background: #B9FF66;
-    color: #000000;
-    padding: 8px 16px;
-    border-radius: 20px;
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 30px;
-    transition: transform 0.3s ease;
-}
-
-.contact-info h3:hover {
-    transform: scale(1.05);
-}
-
-.contact-details p {
-    margin-bottom: 15px;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
-
-.contact-details p:hover {
-    color: #B9FF66;
-}
-
-.newsletter {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.newsletter input {
-    flex: 1;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 10px;
-    background: #3a3b43;
-    color: #FFFFFF;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-.newsletter input:focus {
-    outline: none;
-    background: #4a4b53;
-    box-shadow: 0 0 0 3px rgba(185, 255, 102, 0.2);
-}
-
-.newsletter input::placeholder {
-    color: #999;
-}
-
-.newsletter button {
-    padding: 15px 30px;
-    background: #B9FF66;
-    color: #000000;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.newsletter button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.newsletter button:hover::before {
-    left: 100%;
-}
-
-.newsletter button:hover {
-    background: #a8e055;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(185, 255, 102, 0.3);
-}
-
-.footer-bottom {
-    border-top: 1px solid #3a3b43;
-    padding-top: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    color: #999;
-}
-
-.footer-bottom a {
-    color: #999;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-bottom a:hover {
-    color: #B9FF66;
-}
-
 /* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 0 15px;
-    }
-    
-    .form-container {
-        padding: 50px 40px;
-    }
-}
-
 @media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .nav-links {
-        gap: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
     .toggle-buttons {
         flex-direction: column;
         width: 100%;
-        max-width: 300px;
+        max-width: 400px; /* Wider on mobile too */
     }
 
     .toggle-btn {
-        padding: 12px 20px;
+        padding: 15px 30px;
         font-size: 14px;
+        min-width: auto;
+    }
+
+    .toggle-btn:not(:last-child) {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .form-container {
@@ -709,44 +457,16 @@ footer::before {
         padding: 16px;
         font-size: 16px;
     }
-
-    .footer-content {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    .newsletter {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .newsletter button {
-        padding: 12px 20px;
-    }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 0 10px;
-    }
-
-    .main-content {
-        padding: 20px 0 40px;
+    .toggle-btn {
+        padding: 12px 20px;
+        font-size: 13px;
     }
 
     .form-container {
         padding: 30px 20px;
-    }
-
-    .toggle-btn {
-        padding: 10px 16px;
-        font-size: 13px;
     }
 
     .file-upload-btn {
@@ -760,42 +480,10 @@ footer::before {
     }
 }
 
-/* Animation Classes */
-.fade-in {
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.slide-up {
-    animation: slideUp 0.5s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* Focus Styles for Accessibility */
 .toggle-btn:focus,
 .file-upload-btn:focus,
-.submit-btn:focus,
-.newsletter button:focus {
+.submit-btn:focus {
     outline: 3px solid #B9FF66;
     outline-offset: 2px;
 }
@@ -805,54 +493,4 @@ footer::before {
 .form-group textarea:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(185, 255, 102, 0.3);
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-    .toggle-btn,
-    .submit-btn,
-    .file-upload-btn {
-        border: 2px solid currentColor;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        border-width: 3px;
-    }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .header-actions,
-    .profile-btn,
-    .toggle-buttons,
-    .file-upload-btn,
-    .submit-btn,
-    footer {
-        display: none;
-    }
-    
-    .form-container {
-        box-shadow: none;
-        border: 1px solid #000;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        border: 1px solid #000;
-        background: transparent;
-    }
 }

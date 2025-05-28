@@ -6,43 +6,11 @@
     <title>ReRover - LFS | Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/home-styles.css">
+    <link rel="stylesheet" href="components/header.css">
+    <link rel="stylesheet" href="components/footer.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="#" class="logo">ReRover - LFS</a>
-                <nav>
-                    <ul class="nav-links">
-                        <li><a href="home.html">Home</a></li>
-                        <li><a href="#lost">Lost</a></li>
-                        <li><a href="#found">Found</a></li>
-                        <li><a href="aboutUs.html">About us</a></li>
-                    </ul>
-                </nav>
-                <div class="header-actions">
-                    <a href="report.html" class="report-btn">Report an item</a>
-                    <div class="profile-dropdown-container">
-                        <button class="profile-btn" onclick="toggleProfileDropdown(event)">
-                            <img src="/images/user-avatar.png" alt="Profile" class="profile-btn-img">
-                        </button>
-                        <div class="profile-dropdown" id="profileDropdown">
-                            <div class="dropdown-menu">
-                                <a href="user.html" class="dropdown-item">
-                                    <span class="dropdown-icon">👤</span>
-                                    <span>Details</span>
-                                </a>
-                                <a href="#" class="dropdown-item logout-item" onclick="logout(event)">
-                                    <span class="dropdown-icon">🚪</span>
-                                    <span>Log out</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-            </div>
-        </div>
-    </header>
-
+    <div id="header"></div>
     <main class="main-content">
         <div class="container">
             <!-- Search Section -->
@@ -239,31 +207,47 @@
         </div>
     </main>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="contact-info">
-                    <h3>Contact us:</h3>
-                    <div class="contact-details">
-                        <p>Email: info@positivus.com</p>
-                        <p>Phone: 555-567-8901</p>
-                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
-                    </div>
-                </div>
+    <div id="footer"></div>
+    
+    <script>
+        // Load header and footer components
+        async function loadComponents() {
+            try {
+                // Load header
+                const headerResponse = await fetch('components/header.html');
+                const headerHtml = await headerResponse.text();
+                document.getElementById('header').innerHTML = headerHtml;
                 
-                <div class="newsletter">
-                    <input type="email" placeholder="Email" id="newsletterEmail">
-                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p> 2023 Positivus. All Rights Reserved.</p>
-                <a href="#privacy">Privacy Policy</a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="scripts/home-script.js"></script>
+                // Load footer
+                const footerResponse = await fetch('components/footer.html');
+                const footerHtml = await footerResponse.text();
+                document.getElementById('footer').innerHTML = footerHtml;
+                
+                console.log('Components loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+        
+        // Load components when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadComponents);
+        } else {
+            loadComponents();
+        }
+    </script>
+    
+    <!-- Load shared JavaScript FIRST (contains profile functionality) -->
+    <script src="components/header-footer.js"></script>
+    
+    <!-- Load page-specific JavaScript AFTER shared (no conflicting functions) -->
+    <script src="scripts/home-script-fixed.js"></script>
+    
+    <!-- Testing buttons (remove in production) -->
+    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px;">
+        <button onclick="simulateLogin()" style="padding: 10px; background: #B9FF66; border: none; border-radius: 5px; cursor: pointer;">Simulate Login</button>
+        <button onclick="simulateLogout()" style="padding: 10px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">Simulate Logout</button>
+    </div>
 </body>
 </html>

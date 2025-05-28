@@ -41,13 +41,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBtn = document.querySelector('.search-btn');
     const searchInput = document.querySelector('.search-input');
     
-    searchBtn.addEventListener('click', handleSearch);
+    if (searchBtn) {
+        searchBtn.addEventListener('click', handleSearch);
+    }
     
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    });
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+    }
 });
 
 // Item card interactions
@@ -82,70 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-// Profile dropdown toggle function
-document.addEventListener('DOMContentLoaded', function() {
-    const profileDropdown = document.getElementById('profileDropdown');
-    const profileBtn = document.querySelector('.profile-btn');
-
-    function toggleProfileDropdown(event) {
-        event.stopPropagation(); // Prevent click from bubbling up
-        profileDropdown.classList.toggle('show');
-    }
-
-    profileBtn.addEventListener('click', toggleProfileDropdown);
-
-    // Handle logout
-    function logout(event) {
-        event.preventDefault(); // Prevent default link behavior
-        event.stopPropagation(); // Prevent click from bubbling up
-        
-        // Add your logout logic here
-        console.log('Logout clicked');
-        profileDropdown.classList.remove('show');
-    }
-
-    const logoutLink = document.getElementById('logout-link');
-    logoutLink.addEventListener('click', logout);
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        if (profileDropdown && profileDropdown.classList.contains('show')) {
-            profileDropdown.classList.remove('show');
-        }
-    });
-});
-
-// Profile button functionality
-function toggleProfile() {
-    console.log('Profile menu toggled');
-    alert('Profile menu would appear here');
-}
-
-// Newsletter subscription
-function subscribeNewsletter() {
-    const email = document.getElementById('newsletterEmail').value;
-    
-    if (!email) {
-        alert('Please enter your email address');
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        alert('Please enter a valid email address');
-        return;
-    }
-    
-    console.log('Newsletter subscription:', email);
-    alert('Thank you for subscribing to our newsletter!');
-    document.getElementById('newsletterEmail').value = '';
-}
-
-// Email validation helper
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
 
 // Smooth scrolling for anchor links
 document.addEventListener('DOMContentLoaded', function() {

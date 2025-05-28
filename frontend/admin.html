@@ -6,8 +6,12 @@
     <title>ReRover - LFS | Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/admin-styles.css">
+    <link rel="stylesheet" href="components/header.css">
+    <link rel="stylesheet" href="components/footer.css">
+    <script src="components/header-footer.js"></script>
 </head>
 <body>
+    <div id="header"></div>
     <header>
         <div class="container">
             <div class="header-content">
@@ -308,30 +312,22 @@
         </div>
     </div>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="contact-info">
-                    <h3>Contact us:</h3>
-                    <div class="contact-details">
-                        <p>Email: info@positivus.com</p>
-                        <p>Phone: 555-567-8901</p>
-                        <p>Address: 1234 Main St<br>Moonstone City, Stardust State 12345</p>
-                    </div>
-                </div>
-                
-                <div class="newsletter">
-                    <input type="email" placeholder="Email" id="newsletterEmail">
-                    <button onclick="subscribeNewsletter()">Subscribe to news</button>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>© 2023 Positivus. All Rights Reserved.</p>
-                <a href="#privacy">Privacy Policy</a>
-            </div>
-        </div>
-    </footer>
+    <div id="footer"></div>
+    <script>
+        // Load header and footer components
+        fetch('components/header.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+            });
+
+        fetch('components/footer.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('footer').innerHTML = html;
+            });
+    </script>
+    <script src="admin-script.js"></script>
 
     <script src="scripts/admin-script.js"></script>
 </body>

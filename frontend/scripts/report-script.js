@@ -1,6 +1,5 @@
 // Global variables
-let currentReportType = 'lost';
-let selectedFile = null;
+let currentReportType = 'lost'; // This will map to database status field
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,17 +12,40 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize form validation
     initializeFormValidation();
+    
+    // Set initial form labels
+    updateFormLabels(currentReportType);
+    
+    // Make sure toggle buttons have correct initial state
+    const lostBtn = document.querySelector('.toggle-btn[data-type="lost"]');
+    if (lostBtn) {
+        lostBtn.classList.add('active');
+    }
+    
+    // Add click event listeners to toggle buttons
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            switchReportType(type);
+        });
+    });
 });
 
 // Switch between Lost and Found report types
 function switchReportType(type) {
+    console.log('Switching to report type:', type);
+    
+    // Update global variable (this maps to database status field)
     currentReportType = type;
     
-    // Update toggle buttons
+    // Update toggle buttons - remove active from all, add to selected
     const toggleButtons = document.querySelectorAll('.toggle-btn');
     toggleButtons.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.dataset.type === type) {
+        
+        // Add active class to the clicked button
+        if (btn.getAttribute('data-type') === type) {
             btn.classList.add('active');
         }
     });
@@ -31,7 +53,10 @@ function switchReportType(type) {
     // Update form labels and placeholders based on type
     updateFormLabels(type);
     
-    console.log('Switched to report type:', type);
+    // Update submit button text
+    updateSubmitButton(type);
+    
+    console.log('Current report type (database status):', currentReportType);
 }
 
 // Update form labels based on report type
@@ -48,6 +73,14 @@ function updateFormLabels(type) {
         locationLabel.textContent = 'Location Found';
         locationInput.placeholder = 'Where did you find the item? (e.g., A1, 612)';
         descriptionTextarea.placeholder = 'Please describe the found item in detail...';
+    }
+}
+
+// Update submit button text based on report type
+function updateSubmitButton(type) {
+    const submitText = document.querySelector('.submit-text');
+    if (submitText) {
+        submitText.textContent = `Submit ${type === 'lost' ? 'Lost' : 'Found'} Item Report`;
     }
 }
 
@@ -76,7 +109,69 @@ function handleFileSelect(event) {
     }
 }
 
-// Form validation
+// Handle form submission with proper database mapping
+function handleReportSubmit(event) {
+    event.preventDefault();
+    
+    // Validate all fields
+    const form = document.getElementById('reportForm');
+    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    let isFormValid = true;
+    
+    inputs.forEach(input => {
+        if (!validateField(input)) {
+            isFormValid = false;
+        }
+    });
+    
+    if (!isFormValid) {
+        showMessage('Please fix the errors above before submitting.', 'error');
+        return;
+    }
+    
+    // Collect form data with proper database mapping
+    const formData = new FormData(form);
+    const reportData = {
+        // Database fields
+        status: currentReportType, // Maps to database status field (lost/found)
+        item_name: formData.get('itemName'),
+        category: formData.get('category'),
+        description: formData.get('description'),
+        location: formData.get('location'),
+        contact_email: formData.get('contactInfo'),
+        date_time: formData.get('dateTime'),
+        additional_info: formData.get('additionalInfo'),
+        image_file: selectedFile,
+        
+        // Metadata
+        created_at: new Date().toISOString(),
+        user_id: localStorage.getItem('userToken') || 'anonymous'
+    };
+    
+    console.log('Submitting report data:', reportData);
+    
+    // Show loading state
+    showLoadingState(true);
+    
+    // Simulate API call to backend
+    setTimeout(() => {
+        showLoadingState(false);
+        
+        // Show success message
+        showMessage(
+            `${currentReportType === 'lost' ? 'Lost' : 'Found'} item report submitted successfully! ` +
+            `Your report has been added to our database with status: "${currentReportType}".`,
+            'success'
+        );
+        
+        // Reset form
+        resetForm();
+        
+        console.log('Report submitted successfully with status:', currentReportType);
+    }, 2000);
+}
+
+// Form validation functions
 function initializeFormValidation() {
     const form = document.getElementById('reportForm');
     const inputs = form.querySelectorAll('input, select, textarea');
@@ -146,63 +241,32 @@ function clearFieldError(field) {
     }
 }
 
-// Handle form submission
-function handleReportSubmit(event) {
-    event.preventDefault();
-    
-    // Validate all fields
+// Reset form to initial state
+function resetForm() {
     const form = document.getElementById('reportForm');
-    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-    let isFormValid = true;
+    form.reset();
     
-    inputs.forEach(input => {
-        if (!validateField(input)) {
-            isFormValid = false;
-        }
-    });
+    selectedFile = null;
+    document.getElementById('fileName').textContent = 'No file selected';
+    document.getElementById('imagePreview').innerHTML = '';
     
-    if (!isFormValid) {
-        showMessage('Please fix the errors above before submitting.', 'error');
-        return;
+    // Reset date/time to current
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.getElementById('dateTime').value = localDateTime;
+    
+    // Reset to lost type
+    currentReportType = 'lost';
+    const lostBtn = document.querySelector('.toggle-btn[data-type="lost"]');
+    const foundBtn = document.querySelector('.toggle-btn[data-type="found"]');
+    
+    if (lostBtn && foundBtn) {
+        lostBtn.classList.add('active');
+        foundBtn.classList.remove('active');
     }
     
-    // Collect form data
-    const formData = new FormData(form);
-    const reportData = {
-        type: currentReportType,
-        itemName: formData.get('itemName'),
-        category: formData.get('category'),
-        description: formData.get('description'),
-        location: formData.get('location'),
-        contactInfo: formData.get('contactInfo'),
-        dateTime: formData.get('dateTime'),
-        additionalInfo: formData.get('additionalInfo'),
-        image: selectedFile
-    };
-    
-    // Show loading state
-    showLoadingState(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-        showLoadingState(false);
-        
-        // Show success message
-        showMessage(`${currentReportType === 'lost' ? 'Lost' : 'Found'} item report submitted successfully! We'll review your submission and add it to our database.`, 'success');
-        
-        // Reset form
-        form.reset();
-        selectedFile = null;
-        document.getElementById('fileName').textContent = 'No file selected';
-        document.getElementById('imagePreview').innerHTML = '';
-        
-        // Reset date/time to current
-        const now = new Date();
-        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-        document.getElementById('dateTime').value = localDateTime;
-        
-        console.log('Report submitted:', reportData);
-    }, 2000);
+    updateFormLabels('lost');
+    updateSubmitButton('lost');
 }
 
 // Show loading state
@@ -249,54 +313,5 @@ function showMessage(message, type) {
     }, 5000);
 }
 
-// Profile button functionality
-function toggleProfile() {
-    console.log('Profile menu toggled');
-    alert('Profile menu would appear here');
-}
-
-// Newsletter subscription
-function subscribeNewsletter() {
-    const email = document.getElementById('newsletterEmail').value;
-    
-    if (!email) {
-        alert('Please enter your email address');
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        alert('Please enter a valid email address');
-        return;
-    }
-    
-    console.log('Newsletter subscription:', email);
-    alert('Thank you for subscribing to our newsletter!');
-    document.getElementById('newsletterEmail').value = '';
-}
-
-// Email validation helper
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Smooth scrolling for anchor links
-document.addEventListener('DOMContentLoaded', function() {
-    const links = document.querySelectorAll('a[href^="#"]');
-    
-    links.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-});
+// Global variable for file selection
+let selectedFile = null;
