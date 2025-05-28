@@ -235,7 +235,6 @@ body {
 
 /* Table Styles */
 .table-container {
-  overflow-x: auto;
   border-radius: 15px;
   border: 2px solid var(--border-color);
   background: var(--bg-color);
@@ -291,7 +290,6 @@ body {
 }
 
 .data-table tbody tr::before {
-  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -317,11 +315,58 @@ body {
   border-bottom: none;
 }
 
+/* Fix table column widths - More compact */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+  width: 50px;
+  min-width: 50px;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+  width: 120px;
+  min-width: 120px;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+  width: 100px;
+  min-width: 100px;
+}
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+  width: 70px;
+  min-width: 70px;
+}
+
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+  width: 80px;
+  min-width: 80px;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  width: 100px;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Ensure table doesn't overflow */
+
 /* Action Buttons in Table */
 .action-buttons {
   display: flex;
   gap: 8px;
   justify-content: center;
+  white-space: nowrap;
 }
 
 .btn-edit {

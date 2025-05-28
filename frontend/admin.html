@@ -11,6 +11,7 @@
     <script src="components/header-footer.js"></script>
 </head>
 <body>
+    <!-- Remove duplicate header - only keep the component one -->
     <div id="header"></div>
 
     <main class="dashboard-main">
@@ -66,8 +67,7 @@
                                         <th>Name</th>
                                         <th>Student ID</th>
                                         <th>Phone</th>
-                                        <th>Status</th>
-                                        <th>Merit Points</th>
+                                        <th>Merits</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -180,24 +180,28 @@
                         <input type="text" id="userFullName" required>
                     </div>
                     <div class="form-group">
-                        <label for="userEmail">Email</label>
-                        <input type="email" id="userEmail" required>
-                    </div>
-                    <div class="form-group">
                         <label for="userStudentId">Student ID</label>
                         <input type="text" id="userStudentId" required>
                     </div>
                     <div class="form-group">
-                        <label for="userPhone">Phone</label>
+                        <label for="userEmail">Gmail</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPhone">Phone Number</label>
                         <input type="tel" id="userPhone">
                     </div>
                     <div class="form-group">
-                        <label for="userStatus">Status</label>
-                        <select id="userStatus">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
+                        <label for="userSocials">Socials (JSON)</label>
+                        <textarea id="userSocials" placeholder='{"facebook": "", "instagram": ""}'></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="userProfilePicture">Profile Picture URL</label>
+                        <input type="url" id="userProfilePicture">
+                    </div>
+                    <div class="form-group">
+                        <label for="userMeritPoints">Merit Points</label>
+                        <input type="number" id="userMeritPoints" value="0">
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
@@ -218,18 +222,8 @@
             <div class="modal-body">
                 <form id="addItemForm">
                     <div class="form-group">
-                        <label for="itemName">Item Name</label>
-                        <input type="text" id="itemName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="itemCategory">Category</label>
-                        <select id="itemCategory">
-                            <option value="electronics">Electronics</option>
-                            <option value="clothing">Clothing</option>
-                            <option value="accessories">Accessories</option>
-                            <option value="books">Books</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <label for="itemTitle">Item Title</label>
+                        <input type="text" id="itemTitle" required>
                     </div>
                     <div class="form-group">
                         <label for="itemDescription">Description</label>
@@ -247,8 +241,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="itemReporter">Reporter Email</label>
-                        <input type="email" id="itemReporter" required>
+                        <label for="itemDate">Date</label>
+                        <input type="date" id="itemDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemImageUrl">Image URL</label>
+                        <input type="url" id="itemImageUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemUserId">User ID</label>
+                        <input type="number" id="itemUserId" required>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" onclick="closeModal('addItemModal')">Cancel</button>

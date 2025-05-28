@@ -209,18 +209,17 @@ function renderUsersTable() {
   users.forEach((user) => {
     const row = document.createElement("tr")
     row.innerHTML = `
-      <td>${user.user_id}</td>
-      <td>${user.fullname}</td>
-      <td>${user.student_id}</td>
-      <td>${user.phone_number || "N/A"}</td>
-      <td>${user.status || "N/A"}</td>
-      <td>${user.merit_point}</td>
-      <td>
-        <div class="action-buttons">
-          <button class="btn-edit" onclick="editUser(${user.user_id})">Edit</button>
-        </div>
-      </td>
-    `
+  <td>${user.user_id}</td>
+  <td>${user.fullname}</td>
+  <td>${user.student_id}</td>
+  <td>${user.phone_number || "N/A"}</td>
+  <td>${user.merit_point}</td>
+  <td>
+    <div class="action-buttons">
+      <button class="btn-edit" onclick="editUser(${user.user_id})">Edit</button>
+    </div>
+  </td>
+`
     tbody.appendChild(row)
   })
 }
@@ -433,7 +432,7 @@ function editItem(itemId, itemType) {
       </div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
-        <button type="button" class="btn-danger" onclick="deleteItem(${itemId}, '${itemType}')">Delete Item</button>
+        <button type="button" class="btn-delete" onclick="deleteItem(${itemId}, '${itemType}')">Delete Item</button>
         <button type="submit" class="btn-primary">Update Item</button>
       </div>
     </form>
