@@ -237,17 +237,5 @@
             loadComponents();
         }
     </script>
-    
-    <!-- Load shared JavaScript FIRST (contains profile functionality) -->
-    <script src="components/header-footer.js"></script>
-    
-    <!-- Load page-specific JavaScript AFTER shared (no conflicting functions) -->
-    <script src="scripts/home-script-fixed.js"></script>
-    
-    <!-- Testing buttons (remove in production) -->
-    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px;">
-        <button onclick="simulateLogin()" style="padding: 10px; background: #B9FF66; border: none; border-radius: 5px; cursor: pointer;">Simulate Login</button>
-        <button onclick="simulateLogout()" style="padding: 10px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">Simulate Logout</button>
-    </div>
 </body>
 </html>
