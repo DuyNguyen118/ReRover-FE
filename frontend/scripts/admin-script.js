@@ -89,74 +89,80 @@ function animatePanelContent(panelName) {
 }
 
 function loadSampleData() {
-  // Sample users data
+  // Sample users data based on database schema
   users = [
     {
-      id: 1,
-      fullName: "John Doe",
-      email: "john.doe@university.edu",
-      studentId: "STU123456",
-      phone: "+1 (555) 123-4567",
-      registrationDate: "2023-09-15",
-      status: "active",
-      meritPoints: 1250,
+      user_id: 1,
+      student_id: "STU123456",
+      fullname: "John Doe",
+      gmail: "john.doe@university.edu",
+      phone_number: "+1 (555) 123-4567",
+      socials: '{"facebook": "john.doe", "instagram": "@johndoe"}',
+      profile_picture: "/images/user1.jpg",
+      merit_point: 1250,
+      created_at: "2023-09-15",
     },
     {
-      id: 2,
-      fullName: "Sarah Johnson",
-      email: "sarah.j@university.edu",
-      studentId: "STU789012",
-      phone: "+1 (555) 234-5678",
-      registrationDate: "2023-10-02",
-      status: "active",
-      meritPoints: 850,
+      user_id: 2,
+      student_id: "STU789012",
+      fullname: "Sarah Johnson",
+      gmail: "sarah.j@university.edu",
+      phone_number: "+1 (555) 234-5678",
+      socials: '{"facebook": "sarah.johnson", "instagram": "@sarahj"}',
+      profile_picture: "/images/user2.jpg",
+      merit_point: 850,
+      created_at: "2023-10-02",
     },
     {
-      id: 3,
-      fullName: "Mike Chen",
-      email: "mike.chen@university.edu",
-      studentId: "STU345678",
-      phone: "+1 (555) 345-6789",
-      registrationDate: "2023-08-20",
-      status: "inactive",
-      meritPoints: 420,
+      user_id: 3,
+      student_id: "STU345678",
+      fullname: "Mike Chen",
+      gmail: "mike.chen@university.edu",
+      phone_number: "+1 (555) 345-6789",
+      socials: '{"facebook": "mike.chen", "instagram": "@mikechen"}',
+      profile_picture: "/images/user3.jpg",
+      merit_point: 420,
+      created_at: "2023-08-20",
     },
   ]
 
-  // Sample items data
+  // Sample items data based on database schema
   items = [
     {
-      id: 1,
-      name: "iPhone 13",
-      category: "electronics",
+      lost_item_id: 1,
+      user_id: 1,
+      title: "iPhone 13",
       description: "Black iPhone 13, 128GB with blue case",
       location: "Library A1",
-      dateReported: "2023-12-15",
-      reporter: "john.doe@university.edu",
-      status: "pending",
+      lost_date: "2023-12-15",
+      image_url: "/images/iphone.jpg",
       type: "lost",
+      status: "pending",
+      category: "electronics",
     },
     {
-      id: 2,
-      name: "Car Keys",
-      category: "accessories",
+      found_item_id: 2,
+      user_id: 2,
+      title: "Car Keys",
       description: "Toyota keys with blue keychain",
       location: "Parking Lot B",
-      dateReported: "2023-12-14",
-      reporter: "sarah.j@university.edu",
-      status: "found",
+      found_date: "2023-12-14",
+      image_url: "/images/keys.jpg",
       type: "found",
+      status: "found",
+      category: "accessories",
     },
     {
-      id: 3,
-      name: "Textbook",
-      category: "books",
+      lost_item_id: 3,
+      user_id: 3,
+      title: "Textbook",
       description: "Mathematics textbook, 3rd edition",
       location: "Study Hall C",
-      dateReported: "2023-12-13",
-      reporter: "mike.chen@university.edu",
-      status: "returned",
+      lost_date: "2023-12-13",
+      image_url: "/images/textbook.jpg",
       type: "lost",
+      status: "returned",
+      category: "books",
     },
   ]
 
@@ -181,25 +187,6 @@ function loadSampleData() {
       },
       confidence: "95%",
     },
-    {
-      id: 2,
-      matchDate: "2023-12-15",
-      lostItem: {
-        id: 5,
-        name: "Wallet",
-        description: "Brown leather wallet",
-        location: "Cafeteria",
-        reporter: "mike.chen@university.edu",
-      },
-      foundItem: {
-        id: 6,
-        name: "Wallet",
-        description: "Leather wallet with cards",
-        location: "Dining Hall",
-        reporter: "jane.smith@university.edu",
-      },
-      confidence: "88%",
-    },
   ]
 
   // Sample announcements
@@ -210,13 +197,6 @@ function loadSampleData() {
       content: "The lost and found system will be under maintenance on Sunday from 2-4 AM.",
       priority: "medium",
       dateCreated: "2023-12-16",
-    },
-    {
-      id: 2,
-      title: "Holiday Hours",
-      content: "During winter break, the lost and found office will have limited hours. Please check our schedule.",
-      priority: "high",
-      dateCreated: "2023-12-15",
     },
   ]
 }
@@ -229,18 +209,15 @@ function renderUsersTable() {
   users.forEach((user) => {
     const row = document.createElement("tr")
     row.innerHTML = `
-      <td>${user.id}</td>
-      <td>${user.fullName}</td>
-      <td>${user.email}</td>
-      <td>${user.studentId}</td>
-      <td>${user.phone}</td>
-      <td>${formatDate(user.registrationDate)}</td>
-      <td><span class="status-badge status-${user.status}">${user.status}</span></td>
-      <td>${user.meritPoints}</td>
+      <td>${user.user_id}</td>
+      <td>${user.fullname}</td>
+      <td>${user.student_id}</td>
+      <td>${user.phone_number || "N/A"}</td>
+      <td>${user.status || "N/A"}</td>
+      <td>${user.merit_point}</td>
       <td>
         <div class="action-buttons">
-          <button class="btn-update" onclick="editUser(${user.id})">Update</button>
-          <button class="btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+          <button class="btn-edit" onclick="editUser(${user.user_id})">Edit</button>
         </div>
       </td>
     `
@@ -255,10 +232,15 @@ function openAddUserModal() {
 
 function addUser(userData) {
   const newUser = {
-    id: users.length + 1,
-    ...userData,
-    registrationDate: new Date().toISOString().split("T")[0],
-    meritPoints: 0,
+    user_id: users.length + 1,
+    student_id: userData.studentId,
+    fullname: userData.fullName,
+    gmail: userData.email,
+    phone_number: userData.phone,
+    socials: userData.socials || "{}",
+    profile_picture: userData.profilePicture || "",
+    merit_point: Number.parseInt(userData.meritPoints) || 0,
+    created_at: new Date().toISOString().split("T")[0],
   }
 
   users.push(newUser)
@@ -267,7 +249,7 @@ function addUser(userData) {
 }
 
 function editUser(userId) {
-  const user = users.find((u) => u.id === userId)
+  const user = users.find((u) => u.user_id === userId)
   if (!user) return
 
   const modalTitle = document.getElementById("editModalTitle")
@@ -278,34 +260,35 @@ function editUser(userId) {
     <form id="editUserForm">
       <div class="form-group">
         <label for="editUserFullName">Full Name</label>
-        <input type="text" id="editUserFullName" value="${user.fullName}" required>
-      </div>
-      <div class="form-group">
-        <label for="editUserEmail">Email</label>
-        <input type="email" id="editUserEmail" value="${user.email}" required>
+        <input type="text" id="editUserFullName" value="${user.fullname}" required>
       </div>
       <div class="form-group">
         <label for="editUserStudentId">Student ID</label>
-        <input type="text" id="editUserStudentId" value="${user.studentId}" required>
+        <input type="text" id="editUserStudentId" value="${user.student_id}" required>
       </div>
       <div class="form-group">
-        <label for="editUserPhone">Phone</label>
-        <input type="tel" id="editUserPhone" value="${user.phone}">
+        <label for="editUserEmail">Gmail</label>
+        <input type="email" id="editUserEmail" value="${user.gmail}" required>
       </div>
       <div class="form-group">
-        <label for="editUserStatus">Status</label>
-        <select id="editUserStatus">
-          <option value="active" ${user.status === "active" ? "selected" : ""}>Active</option>
-          <option value="inactive" ${user.status === "inactive" ? "selected" : ""}>Inactive</option>
-          <option value="suspended" ${user.status === "suspended" ? "selected" : ""}>Suspended</option>
-        </select>
+        <label for="editUserPhone">Phone Number</label>
+        <input type="tel" id="editUserPhone" value="${user.phone_number || ""}">
+      </div>
+      <div class="form-group">
+        <label for="editUserSocials">Socials (JSON)</label>
+        <textarea id="editUserSocials" rows="3">${user.socials}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="editUserProfilePicture">Profile Picture URL</label>
+        <input type="url" id="editUserProfilePicture" value="${user.profile_picture || ""}">
       </div>
       <div class="form-group">
         <label for="editUserMeritPoints">Merit Points</label>
-        <input type="number" id="editUserMeritPoints" value="${user.meritPoints}">
+        <input type="number" id="editUserMeritPoints" value="${user.merit_point}">
       </div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+        <button type="button" class="btn-danger" onclick="deleteUser(${userId})">Delete User</button>
         <button type="submit" class="btn-primary">Update User</button>
       </div>
     </form>
@@ -320,15 +303,16 @@ function editUser(userId) {
 
     const updatedUser = {
       ...user,
-      fullName: document.getElementById("editUserFullName").value,
-      email: document.getElementById("editUserEmail").value,
-      studentId: document.getElementById("editUserStudentId").value,
-      phone: document.getElementById("editUserPhone").value,
-      status: document.getElementById("editUserStatus").value,
-      meritPoints: Number.parseInt(document.getElementById("editUserMeritPoints").value),
+      fullname: document.getElementById("editUserFullName").value,
+      student_id: document.getElementById("editUserStudentId").value,
+      gmail: document.getElementById("editUserEmail").value,
+      phone_number: document.getElementById("editUserPhone").value,
+      socials: document.getElementById("editUserSocials").value,
+      profile_picture: document.getElementById("editUserProfilePicture").value,
+      merit_point: Number.parseInt(document.getElementById("editUserMeritPoints").value),
     }
 
-    const index = users.findIndex((u) => u.id === userId)
+    const index = users.findIndex((u) => u.user_id === userId)
     users[index] = updatedUser
     renderUsersTable()
     closeModal("editModal")
@@ -338,8 +322,9 @@ function editUser(userId) {
 
 function deleteUser(userId) {
   if (confirm("Are you sure you want to delete this user?")) {
-    users = users.filter((u) => u.id !== userId)
+    users = users.filter((u) => u.user_id !== userId)
     renderUsersTable()
+    closeModal("editModal")
     showNotification("User deleted successfully!", "success")
   }
 }
@@ -350,21 +335,18 @@ function renderItemsTable() {
   tbody.innerHTML = ""
 
   items.forEach((item) => {
+    const itemId = item.lost_item_id || item.found_item_id
     const row = document.createElement("tr")
     row.innerHTML = `
-      <td>${item.id}</td>
-      <td>${item.name}</td>
+      <td>${itemId}</td>
+      <td>${item.title}</td>
       <td>${item.category}</td>
-      <td>${item.description}</td>
       <td>${item.location}</td>
-      <td>${formatDate(item.dateReported)}</td>
-      <td>${item.reporter}</td>
-      <td><span class="status-badge status-${item.status}">${item.status}</span></td>
       <td><span class="status-badge status-${item.type}">${item.type}</span></td>
+      <td><span class="status-badge status-${item.status}">${item.status}</span></td>
       <td>
         <div class="action-buttons">
-          <button class="btn-update" onclick="editItem(${item.id})">Update</button>
-          <button class="btn-delete" onclick="deleteItem(${item.id})">Delete</button>
+          <button class="btn-edit" onclick="editItem(${itemId}, '${item.type}')">Edit</button>
         </div>
       </td>
     `
@@ -379,10 +361,17 @@ function openAddItemModal() {
 
 function addItem(itemData) {
   const newItem = {
-    id: items.length + 1,
-    ...itemData,
-    dateReported: new Date().toISOString().split("T")[0],
+    [itemData.type === "lost" ? "lost_item_id" : "found_item_id"]: items.length + 1,
+    user_id: Number.parseInt(itemData.userId),
+    title: itemData.title,
+    description: itemData.description,
+    location: itemData.location,
+    [itemData.type === "lost" ? "lost_date" : "found_date"]: itemData.date,
+    image_url: itemData.imageUrl || "",
+    type: itemData.type,
     status: "pending",
+    category: itemData.category || "other",
+    created_at: new Date().toISOString().split("T")[0],
   }
 
   items.push(newItem)
@@ -390,8 +379,8 @@ function addItem(itemData) {
   showNotification("Item added successfully!", "success")
 }
 
-function editItem(itemId) {
-  const item = items.find((i) => i.id === itemId)
+function editItem(itemId, itemType) {
+  const item = items.find((i) => i.lost_item_id === itemId || i.found_item_id === itemId)
   if (!item) return
 
   const modalTitle = document.getElementById("editModalTitle")
@@ -401,8 +390,28 @@ function editItem(itemId) {
   modalBody.innerHTML = `
     <form id="editItemForm">
       <div class="form-group">
-        <label for="editItemName">Item Name</label>
-        <input type="text" id="editItemName" value="${item.name}" required>
+        <label for="editItemTitle">Title</label>
+        <input type="text" id="editItemTitle" value="${item.title}" required>
+      </div>
+      <div class="form-group">
+        <label for="editItemDescription">Description</label>
+        <textarea id="editItemDescription" rows="3">${item.description || ""}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="editItemLocation">Location</label>
+        <input type="text" id="editItemLocation" value="${item.location}" required>
+      </div>
+      <div class="form-group">
+        <label for="editItemDate">${item.type === "lost" ? "Lost" : "Found"} Date</label>
+        <input type="date" id="editItemDate" value="${item.lost_date || item.found_date}" required>
+      </div>
+      <div class="form-group">
+        <label for="editItemImageUrl">Image URL</label>
+        <input type="url" id="editItemImageUrl" value="${item.image_url || ""}">
+      </div>
+      <div class="form-group">
+        <label for="editItemUserId">User ID</label>
+        <input type="number" id="editItemUserId" value="${item.user_id}" required>
       </div>
       <div class="form-group">
         <label for="editItemCategory">Category</label>
@@ -415,14 +424,6 @@ function editItem(itemId) {
         </select>
       </div>
       <div class="form-group">
-        <label for="editItemDescription">Description</label>
-        <textarea id="editItemDescription" rows="3">${item.description}</textarea>
-      </div>
-      <div class="form-group">
-        <label for="editItemLocation">Location</label>
-        <input type="text" id="editItemLocation" value="${item.location}" required>
-      </div>
-      <div class="form-group">
         <label for="editItemStatus">Status</label>
         <select id="editItemStatus">
           <option value="pending" ${item.status === "pending" ? "selected" : ""}>Pending</option>
@@ -430,19 +431,9 @@ function editItem(itemId) {
           <option value="returned" ${item.status === "returned" ? "selected" : ""}>Returned</option>
         </select>
       </div>
-      <div class="form-group">
-        <label for="editItemType">Type</label>
-        <select id="editItemType">
-          <option value="lost" ${item.type === "lost" ? "selected" : ""}>Lost</option>
-          <option value="found" ${item.type === "found" ? "selected" : ""}>Found</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="editItemReporter">Reporter Email</label>
-        <input type="email" id="editItemReporter" value="${item.reporter}" required>
-      </div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+        <button type="button" class="btn-danger" onclick="deleteItem(${itemId}, '${itemType}')">Delete Item</button>
         <button type="submit" class="btn-primary">Update Item</button>
       </div>
     </form>
@@ -457,16 +448,17 @@ function editItem(itemId) {
 
     const updatedItem = {
       ...item,
-      name: document.getElementById("editItemName").value,
-      category: document.getElementById("editItemCategory").value,
+      title: document.getElementById("editItemTitle").value,
       description: document.getElementById("editItemDescription").value,
       location: document.getElementById("editItemLocation").value,
+      [item.type === "lost" ? "lost_date" : "found_date"]: document.getElementById("editItemDate").value,
+      image_url: document.getElementById("editItemImageUrl").value,
+      user_id: Number.parseInt(document.getElementById("editItemUserId").value),
+      category: document.getElementById("editItemCategory").value,
       status: document.getElementById("editItemStatus").value,
-      type: document.getElementById("editItemType").value,
-      reporter: document.getElementById("editItemReporter").value,
     }
 
-    const index = items.findIndex((i) => i.id === itemId)
+    const index = items.findIndex((i) => i.lost_item_id === itemId || i.found_item_id === itemId)
     items[index] = updatedItem
     renderItemsTable()
     closeModal("editModal")
@@ -474,10 +466,11 @@ function editItem(itemId) {
   }
 }
 
-function deleteItem(itemId) {
+function deleteItem(itemId, itemType) {
   if (confirm("Are you sure you want to delete this item?")) {
-    items = items.filter((i) => i.id !== itemId)
+    items = items.filter((i) => !(i.lost_item_id === itemId || i.found_item_id === itemId))
     renderItemsTable()
+    closeModal("editModal")
     showNotification("Item deleted successfully!", "success")
   }
 }
@@ -550,8 +543,8 @@ function approveReturn(returnId) {
     const returnItem = pendingReturns.find((r) => r.id === returnId)
     if (returnItem) {
       // Update item statuses to returned
-      const lostItemIndex = items.findIndex((i) => i.id === returnItem.lostItem.id)
-      const foundItemIndex = items.findIndex((i) => i.id === returnItem.foundItem.id)
+      const lostItemIndex = items.findIndex((i) => i.lost_item_id === returnItem.lostItem.id)
+      const foundItemIndex = items.findIndex((i) => i.found_item_id === returnItem.foundItem.id)
 
       if (lostItemIndex !== -1) {
         items[lostItemIndex].status = "returned"
@@ -577,8 +570,8 @@ function rejectReturn(returnId) {
     const returnItem = pendingReturns.find((r) => r.id === returnId)
     if (returnItem) {
       // Update item statuses back to active
-      const lostItemIndex = items.findIndex((i) => i.id === returnItem.lostItem.id)
-      const foundItemIndex = items.findIndex((i) => i.id === returnItem.foundItem.id)
+      const lostItemIndex = items.findIndex((i) => i.lost_item_id === returnItem.lostItem.id)
+      const foundItemIndex = items.findIndex((i) => i.found_item_id === returnItem.foundItem.id)
 
       if (lostItemIndex !== -1) {
         items[lostItemIndex].status = "pending"
@@ -625,7 +618,7 @@ function renderAnnouncements() {
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #666;">
         <span>Published: ${formatDate(announcement.dateCreated)}</span>
         <div class="announcement-actions">
-          <button class="btn-update" onclick="editAnnouncement(${announcement.id})">Edit</button>
+          <button class="btn-edit" onclick="editAnnouncement(${announcement.id})">Edit</button>
           <button class="btn-delete" onclick="deleteAnnouncement(${announcement.id})">Delete</button>
         </div>
       </div>
@@ -698,10 +691,12 @@ function setupFormHandlers() {
 
       const userData = {
         fullName: document.getElementById("userFullName").value,
-        email: document.getElementById("userEmail").value,
         studentId: document.getElementById("userStudentId").value,
+        email: document.getElementById("userEmail").value,
         phone: document.getElementById("userPhone").value,
-        status: document.getElementById("userStatus").value,
+        socials: document.getElementById("userSocials").value,
+        profilePicture: document.getElementById("userProfilePicture").value,
+        meritPoints: document.getElementById("userMeritPoints").value,
       }
 
       addUser(userData)
@@ -717,12 +712,13 @@ function setupFormHandlers() {
       e.preventDefault()
 
       const itemData = {
-        name: document.getElementById("itemName").value,
-        category: document.getElementById("itemCategory").value,
+        title: document.getElementById("itemTitle").value,
         description: document.getElementById("itemDescription").value,
         location: document.getElementById("itemLocation").value,
         type: document.getElementById("itemType").value,
-        reporter: document.getElementById("itemReporter").value,
+        date: document.getElementById("itemDate").value,
+        imageUrl: document.getElementById("itemImageUrl").value,
+        userId: document.getElementById("itemUserId").value,
       }
 
       addItem(itemData)
@@ -882,16 +878,6 @@ function logout() {
     setTimeout(() => {
       window.location.href = "login.html"
     }, 1500)
-  }
-}
-
-function subscribeNewsletter() {
-  const email = document.getElementById("newsletterEmail").value
-  if (email) {
-    showNotification("Successfully subscribed to newsletter!", "success")
-    document.getElementById("newsletterEmail").value = ""
-  } else {
-    showNotification("Please enter a valid email address", "error")
   }
 }
 
