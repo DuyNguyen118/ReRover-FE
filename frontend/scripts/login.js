@@ -16,35 +16,34 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Logging in...';
             
             try {
-                console.log('Sending login request...');
+                const formData = new FormData();
+                formData.append('username', studentId);
+                formData.append('password', password);
                 
-                // Use your API utility for the request
                 const response = await fetch('http://localhost:8080/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        student_id: studentId,
-                        password: password
-                    }),
-                    credentials: 'include'  // Important for cookies/sessions
+                    body: formData,
+                    credentials: 'include'  // Important for sessions
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Save the token to localStorage
-                    if (data.token) {
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('user', JSON.stringify(data.user));
-                    }
+                    // Get user data after successful login
+                    const userResponse = await fetch('http://localhost:8080/api/auth/user', {
+                        credentials: 'include'
+                    });
                     
-                    console.log('Login successful, redirecting to home...');
-                    window.location.href = '/home.html';
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        console.log('Login successful, redirecting to home...');
+                        window.location.href = '/home.html';
+                    } else {
+                        throw new Error('Failed to fetch user data');
+                    }
                 } else {
-                    throw new Error(data.message || 'Login failed. Please check your credentials.');
+                    throw new Error(data.error || 'Login failed. Please check your credentials.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -57,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
 
 // Helper function to show error messages
 function showError(message) {
@@ -83,21 +83,63 @@ function showError(message) {
     }, 5000);
 }
 
-// To get the current user
-const currentUser = JSON.parse(localStorage.getItem('user'));
-console.log('Current user:', currentUser);
+// Check authentication status on page load
+async function checkAuth() {
+    const isAuth = await isAuthenticated();
+    const currentPath = window.location.pathname;
+    
+    if (isAuth && (currentPath.endsWith('login.html') || currentPath.endsWith('register.html'))) {
+        window.location.href = '/home.html';
+    } else if (!isAuth && !currentPath.endsWith('login.html') && !currentPath.endsWith('register.html')) {
+        window.location.href = '/login.html';
+    }
+}
+
+// Run auth check when the page loads
+checkAuth();
+
+// Get current user
+function getCurrentUser() {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+}
 
 // To check if user is logged in
-function isAuthenticated() {
-    return localStorage.getItem('token') !== null;
+// Check if user is authenticated
+async function isAuthenticated() {
+    try {
+        const response = await fetch('http://localhost:8080/api/auth/user', {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const userData = await response.json();
+            localStorage.setItem('user', JSON.stringify(userData));
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Authentication check failed:', error);
+        return false;
+    }
 }
 
-// To log out
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'login.html';
+// Logout function
+async function logout() {
+    try {
+        await fetch('http://localhost:8080/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+    } finally {
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+    }
 }
+
+
 // Newsletter subscription
 function subscribeNewsletter() {
     const email = document.getElementById('newsletterEmail').value;
