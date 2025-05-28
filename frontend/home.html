@@ -237,5 +237,10 @@
             loadComponents();
         }
     </script>
+    <!-- Load shared JavaScript FIRST (contains profile functionality) -->
+    <script src="components/header-footer.js"></script>
+    
+    <!-- Load page-specific JavaScript AFTER shared (no conflicting functions) -->
+    <script src="scripts/home-script.js"></script>
 </body>
 </html>
