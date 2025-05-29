@@ -2,8 +2,8 @@
 
 // Check if user is logged in
 function checkLoginStatus() {
-    const userToken = localStorage.getItem('userToken');
-    const isLoggedIn = userToken && userToken !== 'null';
+    const user = localStorage.getItem('user');
+    const isLoggedIn = user && user !== 'null';
     
     console.log('Login status:', isLoggedIn);
     return isLoggedIn;
