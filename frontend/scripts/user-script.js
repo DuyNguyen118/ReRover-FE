@@ -3,6 +3,7 @@ let currentPanel = "matches"
 let isDarkMode = false
 let currentLanguage = "en"
 
+
 // Initialize dashboard
 document.addEventListener("DOMContentLoaded", () => {
   initializeDashboard()
@@ -434,30 +435,123 @@ function loadUserPreferences() {
   }
 }
 
-function loadUserData() {
-  // Simulate loading user data
-  const userData = {
-    fullName: "John Doe",
-    email: "john.doe@university.edu",
-    studentId: "STU123456",
-    phone: "+1 (555) 123-4567",
-    totalPoints: 1250,
-    itemsReturned: 5,
-    itemsReported: 10,
-  }
+async function loadUserData() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !user.studentId) {
+            console.error('No user data found in localStorage');
+            window.location.href = '/login.html';
+            return;
+        }
 
-  // Populate form fields
-  if (document.getElementById("fullName")) {
-    document.getElementById("fullName").value = userData.fullName
-  }
-  if (document.getElementById("email")) {
-    document.getElementById("email").value = userData.email
-  }
-  if (document.getElementById("studentId")) {
-    document.getElementById("studentId").value = userData.studentId
-  }
-  if (document.getElementById("phone")) {
-    document.getElementById("phone").value = userData.phone
+        console.log('Fetching user data for student ID:', user.studentId);
+        const numericId = user.studentId.replace(/\D/g, '');
+        const apiUrl = `http://localhost:8080/user/${numericId}`;
+        
+        console.log('Making request to:', apiUrl);
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);
+        
+        // Handle empty response
+        if (!responseText || !responseText.trim()) {
+            console.log('Empty response received from server');
+            // Try to get user data from localStorage as fallback
+            if (user) {
+                console.log('Using cached user data from localStorage');
+                updateUIWithUserData(user);
+                return;
+            }
+            throw new Error('No data received from server');
+        }
+
+        // Try to parse JSON only if there's content
+        let userData;
+        try {
+            userData = JSON.parse(responseText);
+            console.log('Parsed user data:', userData);
+            
+            // Validate the response contains required fields
+            if (!userData || typeof userData !== 'object' || Object.keys(userData).length === 0) {
+                throw new Error('Invalid user data received');
+            }
+            
+            // Save to localStorage for offline use
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // Update UI
+            updateUIWithUserData(userData);
+            
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+            throw new Error('Failed to process user data');
+        }
+        
+    } catch (error) {
+        console.error('Error in loadUserData:', error);
+        
+        // More user-friendly error messages
+        let errorMessage = 'Failed to load user data';
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Cannot connect to the server. Please check your connection.';
+        } else if (error.message.includes('401') || error.message.includes('403')) {
+            errorMessage = 'Your session has expired. Please log in again.';
+            window.location.href = '/login.html';
+            return;
+        }
+        
+        alert(errorMessage);
+    }
+}
+
+// Helper function to update UI with user data
+function updateUIWithUserData(userData) {
+    console.log('Updating UI with user data:', userData);
+    
+    // Update form fields
+    const fields = {
+        'fullname': userData.fullname,
+        'email': userData.email,
+        'student_id': userData.studentId,
+        'phoneNumber': userData.phoneNumber
+    };
+    
+    Object.entries(fields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value || '';
+        }
+    });
+    
+    // Update stats if the function exists
+    if (typeof updateUserStats === 'function') {
+        updateUserStats(userData);
+    }
+}
+
+function updateUserStats(userData) {
+  // Update points and stats in the UI if elements exist
+  const pointsElement = document.getElementById('userPoints');
+  const itemsReturnedElement = document.getElementById('itemsReturned');
+  const itemsReportedElement = document.getElementById('itemsReported');
+  
+  if (pointsElement) pointsElement.textContent = userData.points || 0;
+  if (itemsReturnedElement) itemsReturnedElement.textContent = userData.itemsReturned || 0;
+  if (itemsReportedElement) itemsReportedElement.textContent = userData.itemsReported || 0;
+  
+  // Update profile picture if available
+  const profilePic = document.getElementById('profilePic');
+  if (profilePic && userData.profilePicture) {
+    profilePic.src = userData.profilePicture;
   }
 }
 
