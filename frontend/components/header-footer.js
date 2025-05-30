@@ -2,7 +2,7 @@
 
 // Check if user is logged in
 function checkLoginStatus() {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     const isLoggedIn = user && user !== 'null';
     
     console.log('Login status:', isLoggedIn);
@@ -38,7 +38,7 @@ function toggleProfile() {
                     </svg>
                     Details
                 </a>
-                <button class="profile-option logout-btn" onclick="handleLogout()">
+                <button class="profile-option logout-btn" onclick="logout()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16,17 21,12 16,7"></polyline>
@@ -117,35 +117,55 @@ function toggleProfile() {
 }
 
 // Handle logout functionality
-function handleLogout() {
-    const confirmLogout = confirm('Are you sure you want to log out?');
-    
-    if (confirmLogout) {
-        // Show logout notification
-        showNotification('Logging out...', 'info');
+async function logout() {
+    try {
+        // Clear all client-side storage first
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // Clear all cookies
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            const [name] = cookie.split('=');
+            // Clear with and without domain
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${window.location.hostname}`;
+        }
+
+        // Call server-side logout
+        try {
+            await fetch('http://localhost:8080/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+        } catch (e) {
+            console.error('Logout API call failed:', e);
+            // Continue with redirect even if API call fails
+        }
+
+        // Clear storage again to be safe
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // Add a small delay to ensure everything is cleared
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Redirect to login with a timestamp to prevent caching
+        window.location.href = `/login.html?t=${new Date().getTime()}`;
         
-        // Simulate logout process
-        setTimeout(() => {
-            // Clear any stored user data
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userData');
-            sessionStorage.clear();
-            
-            // Show success message and reload page to update UI
-            showNotification('Successfully logged out!', 'success');
-            
-            // Reload page to update the UI
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }, 1000);
-    }
-    
-    // Close dropdown
-    const dropdown = document.querySelector('.profile-dropdown');
-    if (dropdown) {
-        dropdown.remove();
-        document.removeEventListener('click', closeDropdownOnOutsideClick);
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Final cleanup and redirect
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login.html';
     }
 }
 
@@ -438,8 +458,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // For testing purposes - simulate login
 function simulateLogin() {
-    localStorage.setItem('userToken', 'demo-token-' + Date.now());
-    localStorage.setItem('userData', JSON.stringify({
+    sessionStorage.setItem('userToken', 'demo-token-' + Date.now());
+    sessionStorage.setItem('userData', JSON.stringify({
         name: 'Demo User',
         email: 'demo@example.com'
     }));
@@ -453,8 +473,8 @@ function simulateLogin() {
 
 // For testing purposes - simulate logout
 function simulateLogout() {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
+    sessionStorage.removeItem('userToken');
+    sessionStorage.removeItem('userData');
     sessionStorage.clear();
     console.log('Demo logout successful');
     showNotification('Successfully logged out!', 'success');

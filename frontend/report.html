@@ -350,6 +350,14 @@
         function handleReportSubmit(event) {
             event.preventDefault();
             
+            // Check if user is authenticated
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (!user || !user.studentId) {
+                showMessage('Please log in to submit a report.', 'error');
+                window.location.href = '/login.html';
+                return;
+            }
+            
             // Validate all fields
             const form = document.getElementById('reportForm');
             const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
@@ -369,8 +377,7 @@
             // Collect form data with proper database mapping
             const formData = new FormData(form);
             const reportData = {
-                // Database fields
-                status: currentReportType, // Maps to database status field (lost/found)
+                status: currentReportType,
                 item_name: formData.get('itemName'),
                 category: formData.get('category'),
                 description: formData.get('description'),
@@ -379,10 +386,8 @@
                 date_time: formData.get('dateTime'),
                 additional_info: formData.get('additionalInfo'),
                 image_file: selectedFile,
-                
-                // Metadata
                 created_at: new Date().toISOString(),
-                user_id: localStorage.getItem('userToken') || 'anonymous'
+                user_id: user.studentId  // Use the logged-in user's ID
             };
             
             console.log('Submitting report data:', reportData);
