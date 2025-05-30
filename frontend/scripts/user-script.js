@@ -446,7 +446,7 @@ async function loadUserData() {
 
         console.log('Fetching user data for student ID:', user.studentId);
         const numericId = user.studentId.replace(/\D/g, '');
-        const apiUrl = `http://localhost:8080/user/${numericId}`;
+        const apiUrl = `http://localhost:8080/api/user/${numericId}`;
         
         console.log('Making request to:', apiUrl);
         const response = await fetch(apiUrl, {
@@ -461,6 +461,14 @@ async function loadUserData() {
         console.log('Response status:', response.status);
         const responseText = await response.text();
         console.log('Raw response text:', responseText);
+        
+        // Check if response is HTML (login page)
+        if (responseText.trim().startsWith('<!DOCTYPE html>') || 
+            responseText.includes('Please sign in')) {
+            console.log('Session expired, redirecting to login');
+            window.location.href = '/login.html';
+            return;
+        }
         
         // Handle empty response
         if (!responseText || !responseText.trim()) {
@@ -493,7 +501,9 @@ async function loadUserData() {
             
         } catch (e) {
             console.error('Error parsing user data:', e);
-            throw new Error('Failed to process user data');
+            // If we're here, it means we got a non-JSON response that wasn't HTML
+            window.location.href = '/login.html';
+            return;
         }
         
     } catch (error) {
@@ -509,7 +519,10 @@ async function loadUserData() {
             return;
         }
         
-        alert(errorMessage);
+        // Only show alert if not redirecting
+        if (window.location.pathname !== '/login.html') {
+            alert(errorMessage);
+        }
     }
 }
 
