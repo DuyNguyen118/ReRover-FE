@@ -145,3 +145,275 @@ document.addEventListener('DOMContentLoaded', function() {
         firstFaq.querySelector('.faq-toggle').textContent = '−';
     }
 });
+
+// Base URL for the API
+const API_BASE_URL = 'http://localhost:8080/api';
+
+// Function to fetch found items from the API
+async function fetchFoundItems() {
+    try {
+        const url = `${API_BASE_URL}/found-item`;
+        console.log('Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors', // Enable CORS
+            credentials: 'include', // Include cookies if needed
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data);
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Error in fetchFoundItems:', {
+            message: error.message,
+            stack: error.stack
+        });
+        throw error;
+    }
+}
+
+// Function to create item card HTML for found items
+function createFoundItemCard(item) {
+    return `
+        <div class="item-card" data-id="${item.id}">
+            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.name || 'Found item'}" class="item-image">
+            <div class="item-info">
+                <h3 class="item-name">${item.name || 'Unnamed Item'}</h3>
+                <p class="item-location">Location: ${item.location || 'Not specified'}</p>
+                <p class="item-date">Found on: ${item.foundDate || new Date().toLocaleDateString()}</p>
+                <div class="item-actions">
+                    <button class="view-detail-btn">View Details</button>
+                    <button class="claim-btn">Claim</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to render found items in the UI
+async function renderFoundItems(type = null) {
+    const container = document.querySelector('.found-items-container .items-list');
+    if (!container) {
+        console.error('Items list container not found');
+        return;
+    }
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading found items...</p>
+        </div>`;
+
+    try {
+        const items = type ? await fetchFoundItems(type) : await fetchFoundItems();
+
+        const recentItems = items
+            .sort((a, b) => new Date(b.foundDate) - new Date(a.foundDate))
+            .slice(0, 2);
+        
+        if (!Array.isArray(items)) {
+            throw new Error('Invalid response from server');
+        }
+        
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="no-items">
+                    <p>No items found${type ? ` in category: ${type}` : ''}.</p>
+                    <button onclick="renderFoundItems(${type ? `'${type}'` : ''})">Refresh</button>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = recentItems.map(createFoundItemCard).join('');
+        attachFoundItemListeners();
+    } catch (error) {
+        console.error('Error in renderFoundItems:', error);
+        container.innerHTML = `
+            <div class="error-message">
+                <p>Failed to load items. Please try again later.</p>
+                <p><small>${error.message || 'Unknown error occurred'}</small></p>
+                <button onclick="renderFoundItems(${type ? `'${type}'` : ''})">Try Again</button>
+            </div>`;
+    }
+}
+
+// Function to attach event listeners to found item cards
+function attachFoundItemListeners() {
+    // View detail button click
+    document.querySelectorAll('.view-detail-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemId = this.closest('.item-card').dataset.id;
+            // In a real app, you would navigate to a detail page or show a modal
+            alert(`Viewing details for found item ${itemId}`);
+        });
+    });
+
+    // Claim button click
+    document.querySelectorAll('.claim-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemCard = this.closest('.item-card');
+            const itemId = itemCard.dataset.id;
+            const itemName = itemCard.querySelector('.item-name').textContent;
+            
+            if (confirm(`Are you sure you want to claim "${itemName}"?`)) {
+                // In a real app, you would make an API call to claim the item
+                alert(`Claim request sent for "${itemName}". We'll contact you soon.`);
+            }
+        });
+    });
+}
+
+// Initialize the page when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Home page initialized');
+    
+    // Load and render found items
+    renderFoundItems();
+    renderLostItems();
+});
+
+// Function to fetch lost items from the API
+async function fetchLostItems() {
+    try {
+        const url = `${API_BASE_URL}/lost-item`;
+        console.log('Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors', // Enable CORS
+            credentials: 'include', // Include cookies if needed
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data);
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Error in fetchLostItems:', {
+            message: error.message,
+            stack: error.stack
+        });
+        throw error;
+    }
+}
+
+// Function to create item card HTML for lost items
+function createLostItemCard(item) {
+    return `
+        <div class="item-card" data-id="${item.id}">
+            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.name || 'Lost item'}" class="item-image">
+            <div class="item-info">
+                <h3 class="item-name">${item.name || 'Unnamed Item'}</h3>
+                <p class="item-location">Location: ${item.location || 'Not specified'}</p>
+                <p class="item-date">Lost on: ${item.lostDate || new Date().toLocaleDateString()}</p>
+                <div class="item-actions">
+                    <button class="view-detail-btn">View Details</button>
+                    <button class="claim-btn">Claim</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to render found items in the UI
+async function renderLostItems(type = null) {
+    const container = document.querySelector('.lost-items-container .items-list');
+    if (!container) {
+        console.error('Items list container not found');
+        return;
+    }
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading lost items...</p>
+        </div>`;
+
+    try {
+        const items = type ? await fetchLostItems(type) : await fetchLostItems();
+
+        const recentItems = items
+            .sort((a, b) => new Date(b.lostDate) - new Date(a.lostDate))
+            .slice(0, 2);
+        
+        if (!Array.isArray(items)) {
+            throw new Error('Invalid response from server');
+        }
+        
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="no-items">
+                    <p>No items found${type ? ` in category: ${type}` : ''}.</p>
+                    <button onclick="renderLostItems(${type ? `'${type}'` : ''})">Refresh</button>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = recentItems.map(createLostItemCard).join('');
+        attachLostItemListeners();
+    } catch (error) {
+        console.error('Error in renderLostItems:', error);
+        container.innerHTML = `
+            <div class="error-message">
+                <p>Failed to load items. Please try again later.</p>
+                <p><small>${error.message || 'Unknown error occurred'}</small></p>
+                <button onclick="renderLostItems(${type ? `'${type}'` : ''})">Try Again</button>
+            </div>`;
+    }
+}
+
+// Function to attach event listeners to lost item cards
+function attachLostItemListeners() {
+    // View detail button click
+    document.querySelectorAll('.view-detail-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemId = this.closest('.item-card').dataset.id;
+            // In a real app, you would navigate to a detail page or show a modal
+            alert(`Viewing details for lost item ${itemId}`);
+        });
+    });
+
+    // Claim button click
+    document.querySelectorAll('.claim-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const itemCard = this.closest('.item-card');
+            const itemId = itemCard.dataset.id;
+            const itemName = itemCard.querySelector('.item-name').textContent;
+            
+            if (confirm(`Are you sure you want to claim "${itemName}"?`)) {
+                // In a real app, you would make an API call to claim the item
+                alert(`Claim request sent for "${itemName}". We'll contact you soon.`);
+            }
+        });
+    });
+}
