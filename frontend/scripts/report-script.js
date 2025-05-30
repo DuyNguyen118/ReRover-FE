@@ -1,9 +1,26 @@
 // Global variables
 let currentReportType = 'lost'; // This will map to database status field
+let selectedFile = null;
+
+// Check authentication
+function checkAuth() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || !user.studentId) {
+        showMessage('Please log in to access this page.', 'error');
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 1500);
+        return false;
+    }
+    return true;
+}
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Report page loaded successfully');
+    
+    // Check authentication
+    if (!checkAuth()) return;
     
     // Set current date and time
     const now = new Date();
@@ -113,6 +130,14 @@ function handleFileSelect(event) {
 function handleReportSubmit(event) {
     event.preventDefault();
     
+    // Check authentication
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || !user.studentId) {
+        showMessage('Your session has expired. Please log in again.', 'error');
+        window.location.href = '/login.html';
+        return;
+    }
+    
     // Validate all fields
     const form = document.getElementById('reportForm');
     const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
@@ -145,7 +170,7 @@ function handleReportSubmit(event) {
         
         // Metadata
         created_at: new Date().toISOString(),
-        user_id: localStorage.getItem('userToken') || 'anonymous'
+        user_id: user.studentId  // Use the logged-in user's ID
     };
     
     console.log('Submitting report data:', reportData);
@@ -312,6 +337,3 @@ function showMessage(message, type) {
         }, 300);
     }, 5000);
 }
-
-// Global variable for file selection
-let selectedFile = null;
