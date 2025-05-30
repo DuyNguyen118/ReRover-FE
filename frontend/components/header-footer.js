@@ -486,7 +486,7 @@ function simulateLogout() {
 
 // Make functions globally available
 window.toggleProfile = toggleProfile;
-window.handleLogout = handleLogout;
+window.logout = logout;
 window.subscribeNewsletter = subscribeNewsletter;
 window.simulateLogin = simulateLogin;
 window.simulateLogout = simulateLogout;
