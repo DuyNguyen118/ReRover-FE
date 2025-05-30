@@ -343,7 +343,7 @@ function toggleDarkMode() {
   document.body.setAttribute("data-theme", isDarkMode ? "dark" : "light")
 
   // Save preference
-  localStorage.setItem("darkMode", isDarkMode)
+  sessionStorage.setItem("darkMode", isDarkMode)
 
   showNotification(`${isDarkMode ? "Dark" : "Light"} mode enabled`, "info")
 }
@@ -353,7 +353,7 @@ function changeLanguage() {
   currentLanguage = select.value
 
   // Save preference
-  localStorage.setItem("language", currentLanguage)
+  sessionStorage.setItem("language", currentLanguage)
 
   showNotification(`Language changed to ${getLanguageName(currentLanguage)}`, "info")
 }
@@ -378,9 +378,9 @@ function saveSettings() {
     privacy: document.getElementById("privacySelect").value,
   }
 
-  // Save to localStorage
+  // Save to sessionStorage
   Object.keys(settings).forEach((key) => {
-    localStorage.setItem(key, settings[key])
+    sessionStorage.setItem(key, settings[key])
   })
 
   showNotification("Settings saved successfully!", "success")
@@ -404,7 +404,7 @@ function resetSettings() {
 
 function loadUserPreferences() {
   // Load dark mode preference
-  const savedDarkMode = localStorage.getItem("darkMode")
+  const savedDarkMode = sessionStorage.getItem("darkMode")
   if (savedDarkMode === "true") {
     isDarkMode = true
     document.getElementById("darkModeToggle").checked = true
@@ -412,24 +412,24 @@ function loadUserPreferences() {
   }
 
   // Load language preference
-  const savedLanguage = localStorage.getItem("language")
+  const savedLanguage = sessionStorage.getItem("language")
   if (savedLanguage) {
     currentLanguage = savedLanguage
     document.getElementById("languageSelect").value = savedLanguage
   }
 
   // Load other preferences
-  const emailNotifications = localStorage.getItem("emailNotifications")
+  const emailNotifications = sessionStorage.getItem("emailNotifications")
   if (emailNotifications !== null) {
     document.getElementById("emailNotifications").checked = emailNotifications === "true"
   }
 
-  const pushNotifications = localStorage.getItem("pushNotifications")
+  const pushNotifications = sessionStorage.getItem("pushNotifications")
   if (pushNotifications !== null) {
     document.getElementById("pushNotifications").checked = pushNotifications === "true"
   }
 
-  const privacy = localStorage.getItem("privacy")
+  const privacy = sessionStorage.getItem("privacy")
   if (privacy) {
     document.getElementById("privacySelect").value = privacy
   }
@@ -437,9 +437,9 @@ function loadUserPreferences() {
 
 async function loadUserData() {
     try {
-        const user = JSON.parse(localStorage.getItem('user'));
+        const user = JSON.parse(sessionStorage.getItem('user'));
         if (!user || !user.studentId) {
-            console.error('No user data found in localStorage');
+            console.error('No user data found in sessionStorage');
             window.location.href = '/login.html';
             return;
         }
@@ -465,9 +465,9 @@ async function loadUserData() {
         // Handle empty response
         if (!responseText || !responseText.trim()) {
             console.log('Empty response received from server');
-            // Try to get user data from localStorage as fallback
+            // Try to get user data from sessionStorage as fallback
             if (user) {
-                console.log('Using cached user data from localStorage');
+                console.log('Using cached user data from sessionStorage');
                 updateUIWithUserData(user);
                 return;
             }
@@ -485,8 +485,8 @@ async function loadUserData() {
                 throw new Error('Invalid user data received');
             }
             
-            // Save to localStorage for offline use
-            localStorage.setItem('user', JSON.stringify(userData));
+            // Save to sessionStorage for session use
+            sessionStorage.setItem('user', JSON.stringify(userData));
             
             // Update UI
             updateUIWithUserData(userData);
@@ -638,18 +638,55 @@ function getNotificationColor(type) {
   return colors[type] || colors.info
 }
 
-function logout() {
-  if (confirm("Are you sure you want to log out?")) {
-    // Clear user data
-    localStorage.clear()
+async function logout() {
+  try {
+      // Clear all client-side storage first
+      sessionStorage.clear();
+      localStorage.clear();
 
-    // Show logout message
-    showNotification("Logging out...", "info")
+      // Clear all cookies
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          const [name] = cookie.split('=');
+          // Clear with and without domain
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${window.location.hostname}`;
+      }
 
-    // Redirect to login page after delay
-    setTimeout(() => {
-      window.location.href = "login.html"
-    }, 1500)
+      // Call server-side logout
+      try {
+          await fetch('http://localhost:8080/api/auth/logout', {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                  'Cache-Control': 'no-cache, no-store, must-revalidate',
+                  'Pragma': 'no-cache',
+                  'Expires': '0'
+              }
+          });
+      } catch (e) {
+          console.error('Logout API call failed:', e);
+          // Continue with redirect even if API call fails
+      }
+
+      // Clear storage again to be safe
+      sessionStorage.clear();
+      localStorage.clear();
+
+      // Add a small delay to ensure everything is cleared
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Redirect to login with a timestamp to prevent caching
+      window.location.href = `/login.html?t=${new Date().getTime()}`;
+      
+  } catch (error) {
+      console.error('Logout error:', error);
+      // Final cleanup and redirect
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '/login.html';
   }
 }
 
