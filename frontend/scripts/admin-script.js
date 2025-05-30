@@ -5,11 +5,25 @@ let items = []
 let pendingReturns = []
 let announcements = []
 
-// Initialize admin dashboard
-document.addEventListener("DOMContentLoaded", () => {
-  initializeAdminDashboard()
-  setupEventListeners()
-  loadSampleData()
+// Check admin authentication
+function checkAdminAuth() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || !user.isAdmin) {
+        showNotification('Access denied. Please log in as admin.', 'error');
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 1500);
+        return false;
+    }
+    return true;
+}
+
+// Initialize admin dashboard with authentication check
+document.addEventListener('DOMContentLoaded', function() {
+    if (!checkAdminAuth()) return;
+    initializeAdminDashboard()
+    setupEventListeners()
+    loadSampleData()
 })
 
 function initializeAdminDashboard() {
@@ -864,20 +878,27 @@ function getNotificationColor(type) {
 }
 
 function logout() {
-  closeProfileDropdown()
+    closeProfileDropdown();
 
-  if (confirm("Are you sure you want to log out?")) {
-    // Clear admin data
-    localStorage.clear()
+    if (confirm("Are you sure you want to log out?")) {
+        // Clear all storage
+        sessionStorage.clear();
+        localStorage.clear();
 
-    // Show logout message
-    showNotification("Logging out...", "info")
+        // Clear cookies
+        document.cookie.split(';').forEach(cookie => {
+            const [name] = cookie.trim().split('=');
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        });
 
-    // Redirect to login page after delay
-    setTimeout(() => {
-      window.location.href = "login.html"
-    }, 1500)
-  }
+        // Show logout message
+        showNotification("Logging out...", "info");
+
+        // Redirect to login page after delay
+        setTimeout(() => {
+            window.location.href = "/login.html";
+        }, 1500);
+    }
 }
 
 // Add CSS animations
