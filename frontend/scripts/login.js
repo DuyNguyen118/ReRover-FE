@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (userResponse.ok) {
                         const userData = await userResponse.json();
-                        localStorage.setItem('user', JSON.stringify(userData));
+                        sessionStorage.setItem('user', JSON.stringify(userData));
                         console.log('Login successful, redirecting to home...');
                         window.location.href = '/home.html';
                     } else {
@@ -100,7 +100,7 @@ checkAuth();
 
 // Get current user
 function getCurrentUser() {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     return user ? JSON.parse(user) : null;
 }
 
@@ -114,7 +114,7 @@ async function isAuthenticated() {
         
         if (response.ok) {
             const userData = await response.json();
-            localStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('user', JSON.stringify(userData));
             return true;
         }
         return false;
@@ -127,14 +127,52 @@ async function isAuthenticated() {
 // Logout function
 async function logout() {
     try {
-        await fetch('http://localhost:8080/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        });
+        // Clear all client-side storage first
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // Clear all cookies
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            const [name] = cookie.split('=');
+            // Clear with and without domain
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${window.location.hostname}`;
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${window.location.hostname}`;
+        }
+
+        // Call server-side logout
+        try {
+            await fetch('http://localhost:8080/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+        } catch (e) {
+            console.error('Logout API call failed:', e);
+            // Continue with redirect even if API call fails
+        }
+
+        // Clear storage again to be safe
+        sessionStorage.clear();
+        localStorage.clear();
+
+        // Add a small delay to ensure everything is cleared
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Redirect to login with a timestamp to prevent caching
+        window.location.href = `/login.html?t=${new Date().getTime()}`;
+        
     } catch (error) {
         console.error('Logout error:', error);
-    } finally {
-        localStorage.removeItem('user');
+        // Final cleanup and redirect
+        sessionStorage.clear();
+        localStorage.clear();
         window.location.href = '/login.html';
     }
 }
