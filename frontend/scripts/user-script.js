@@ -9,7 +9,29 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeDashboard()
   setupEventListeners()
   loadUserPreferences()
-})
+  
+  toggleFormFields(false);
+  
+  // Set up edit button
+  const editBtn = document.getElementById('editBtn');
+  if (editBtn) {
+    editBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      toggleFormFields(true);
+    });
+  }
+  
+  // Set up form submission
+  const form = document.getElementById('profile-form');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      await updateProfile(e);
+      // After successful update, keep the form locked
+      toggleFormFields(false);
+    });
+  }
+});
 
 function initializeDashboard() {
   // Set initial panel
@@ -266,9 +288,97 @@ function setupModalEvents() {
   })
 }
 
-// Account management
+async function updateProfile(event) {
+  if (event) {
+    event.preventDefault();
+  }
+  
+  if (!window.currentUser || !window.currentUser.id) {
+    showNotification('Please log in to update your profile', 'error');
+    return;
+  }
+
+  // Get the form elements
+  const fullname = document.getElementById("fullname");
+  const email = document.getElementById("email");
+  const phoneNumber = document.getElementById("phoneNumber");
+  const studentId = document.getElementById("student_id");
+  
+  // Lock the form during submission
+  const form = document.getElementById('profile-form');
+  if (form) {
+    const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea, select');
+    inputs.forEach(input => {
+      input.disabled = true;
+    });
+  }
+
+  const formData = {
+    id: window.currentUser.id,
+    fullname: fullname?.value || '',
+    email: email?.value || '',
+    phoneNumber: phoneNumber?.value || '',
+    studentId: studentId?.value || '',
+    createdAt: window.currentUser.createdAt,
+    meritPoint: window.currentUser.meritPoint
+  };
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/user/${window.currentUser.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(formData)
+    });
+    
+    // Handle redirects
+    if (response.redirected) {
+      window.location.href = response.url;
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error('Failed to update profile');
+    }
+
+    const updatedUser = await response.json();
+    window.currentUser = { ...window.currentUser, ...updatedUser };
+    
+    // Update session storage
+    const sessionUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+    sessionStorage.setItem('user', JSON.stringify({ ...sessionUser, ...updatedUser }));
+    
+    updateUIWithUserData(window.currentUser);
+    showNotification("Profile updated successfully!", "success");
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    showNotification(error.message || 'Failed to update profile. Please try again.', 'error');
+    
+    // If there's an error, re-enable the form for editing
+    if (form) {
+      const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea, select');
+      inputs.forEach(input => {
+        input.disabled = false;
+      });
+    }
+  }
+}
+
+// Remove any duplicate event listeners
+document.getElementById('profile-form')?.removeEventListener('submit', updateProfile);
+document.getElementById('profile-form')?.addEventListener('submit', updateProfile);
+
 function changeProfilePhoto() {
   document.getElementById("photoInput").click()
+}
+
+function showNotification(message, type = 'info') {
+  // You can implement this or use an existing notification system
+  alert(`${type.toUpperCase()}: ${message}`);
 }
 
 function handlePhotoChange(event) {
@@ -288,33 +398,6 @@ function handlePhotoChange(event) {
   }
 }
 
-function updateProfile() {
-  const formData = {
-    fullName: document.getElementById("fullName").value,
-    email: document.getElementById("email").value,
-    studentId: document.getElementById("studentId").value,
-    phone: document.getElementById("phone").value,
-    currentPassword: document.getElementById("currentPassword").value,
-    newPassword: document.getElementById("newPassword").value,
-    confirmPassword: document.getElementById("confirmPassword").value,
-  }
-
-  // Validate form
-  if (!validateProfileForm(formData)) {
-    return
-  }
-
-  // Simulate API call
-  setTimeout(() => {
-    showNotification("Profile updated successfully!", "success")
-
-    // Clear password fields
-    document.getElementById("currentPassword").value = ""
-    document.getElementById("newPassword").value = ""
-    document.getElementById("confirmPassword").value = ""
-  }, 1000)
-}
-
 function validateProfileForm(data) {
   if (data.newPassword && data.newPassword !== data.confirmPassword) {
     showNotification("New passwords do not match!", "error")
@@ -327,14 +410,6 @@ function validateProfileForm(data) {
   }
 
   return true
-}
-
-function resetForm() {
-  const form = document.querySelector(".profile-form")
-  const inputs = form.querySelectorAll('input[type="password"]')
-  inputs.forEach((input) => (input.value = ""))
-
-  showNotification("Password fields cleared", "info")
 }
 
 // Settings management
@@ -436,119 +511,74 @@ function loadUserPreferences() {
 }
 
 async function loadUserData() {
-    try {
-        const user = JSON.parse(sessionStorage.getItem('user'));
-        if (!user || !user.studentId) {
-            console.error('No user data found in sessionStorage');
-            window.location.href = '/login.html';
-            return;
-        }
-
-        console.log('Fetching user data for student ID:', user.studentId);
-        const numericId = user.studentId.replace(/\D/g, '');
-        const apiUrl = `http://localhost:8080/api/user/${numericId}`;
-        
-        console.log('Making request to:', apiUrl);
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log('Response status:', response.status);
-        const responseText = await response.text();
-        console.log('Raw response text:', responseText);
-        
-        // Check if response is HTML (login page)
-        if (responseText.trim().startsWith('<!DOCTYPE html>') || 
-            responseText.includes('Please sign in')) {
-            console.log('Session expired, redirecting to login');
-            window.location.href = '/login.html';
-            return;
-        }
-        
-        // Handle empty response
-        if (!responseText || !responseText.trim()) {
-            console.log('Empty response received from server');
-            // Try to get user data from sessionStorage as fallback
-            if (user) {
-                console.log('Using cached user data from sessionStorage');
-                updateUIWithUserData(user);
-                return;
-            }
-            throw new Error('No data received from server');
-        }
-
-        // Try to parse JSON only if there's content
-        let userData;
-        try {
-            userData = JSON.parse(responseText);
-            console.log('Parsed user data:', userData);
-            
-            // Validate the response contains required fields
-            if (!userData || typeof userData !== 'object' || Object.keys(userData).length === 0) {
-                throw new Error('Invalid user data received');
-            }
-            
-            // Save to sessionStorage for session use
-            sessionStorage.setItem('user', JSON.stringify(userData));
-            
-            // Update UI
-            updateUIWithUserData(userData);
-            
-        } catch (e) {
-            console.error('Error parsing user data:', e);
-            // If we're here, it means we got a non-JSON response that wasn't HTML
-            window.location.href = '/login.html';
-            return;
-        }
-        
-    } catch (error) {
-        console.error('Error in loadUserData:', error);
-        
-        // More user-friendly error messages
-        let errorMessage = 'Failed to load user data';
-        if (error.message.includes('Failed to fetch')) {
-            errorMessage = 'Cannot connect to the server. Please check your connection.';
-        } else if (error.message.includes('401') || error.message.includes('403')) {
-            errorMessage = 'Your session has expired. Please log in again.';
-            window.location.href = '/login.html';
-            return;
-        }
-        
-        // Only show alert if not redirecting
-        if (window.location.pathname !== '/login.html') {
-            alert(errorMessage);
-        }
+  try {
+    // Get user data from session storage
+    const userData = JSON.parse(sessionStorage.getItem('user'));
+    
+    if (!userData || !userData.id) {
+      throw new Error('No user data found');
     }
+
+    // If we have the full user data in session, use it
+    if (userData.fullname && userData.email) {
+      window.currentUser = userData;
+      updateUIWithUserData(userData);
+      return userData;
+    }
+
+    // Otherwise, fetch fresh data from the server
+    const response = await fetch(`http://localhost:8080/api/users/${userData.id}`, {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to load user data');
+    }
+
+    const freshUserData = await response.json();
+    
+    // Update session storage with fresh data
+    sessionStorage.setItem('user', JSON.stringify(freshUserData));
+    window.currentUser = freshUserData;
+    updateUIWithUserData(freshUserData);
+    return freshUserData;
+
+  } catch (error) {
+    console.error('Error loading user data:', error);
+    // If we're not on the login page, redirect there
+    if (!window.location.pathname.endsWith('login.html')) {
+      window.location.href = '/login.html';
+    }
+    return null;
+  }
 }
 
 // Helper function to update UI with user data
 function updateUIWithUserData(userData) {
-    console.log('Updating UI with user data:', userData);
-    
-    // Update form fields
-    const fields = {
-        'fullname': userData.fullname,
-        'email': userData.email,
-        'student_id': userData.studentId,
-        'phoneNumber': userData.phoneNumber
-    };
-    
-    Object.entries(fields).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = value || '';
-        }
-    });
-    
-    // Update stats if the function exists
-    if (typeof updateUserStats === 'function') {
-        updateUserStats(userData);
+  if (!userData) return;
+  
+  // Update form fields
+  const fields = {
+    'fullname': userData.fullname || '',
+    'email': userData.email || '',
+    'student_id': userData.studentId || '',
+    'phoneNumber': userData.phoneNumber || ''
+  };
+  
+  Object.entries(fields).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.value = value;
     }
+  });
+  
+  // Update any other UI elements as needed
+  if (userData.profilePicture) {
+    const profilePhoto = document.getElementById('profilePhoto');
+    if (profilePhoto) {
+      profilePhoto.src = userData.profilePicture;
+    }
+  }
 }
 
 function updateUserStats(userData) {
@@ -842,3 +872,20 @@ style.textContent = `
     }
 `
 document.head.appendChild(style)
+
+// Add this function to handle form field toggling
+function toggleFormFields(enable) {
+  const form = document.getElementById('profile-form');
+  if (!form) return;
+  
+  // Get all form inputs except hidden ones and buttons
+  const inputs = form.querySelectorAll(`
+    input:not([type="hidden"]):not([type="button"]):not([type="submit"]), 
+    textarea, 
+    select
+  `);
+  
+  inputs.forEach(input => {
+    input.disabled = !enable;
+  });
+}
