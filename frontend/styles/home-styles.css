@@ -221,17 +221,6 @@ body {
   overflow: hidden;
 }
 
-.column-title::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
-  transition: left 0.5s;
-}
-
 .column-title:hover::before {
   left: 100%;
 }
@@ -239,11 +228,6 @@ body {
 .lost-title,
 .found-title {
   background: #b9ff66;
-}
-
-.column-title:hover {
-  transform: scale(1.05);
-  box-shadow: 0 3px 10px rgba(185, 255, 102, 0.3);
 }
 
 .category-dropdown {
@@ -270,8 +254,6 @@ body {
 
 .category-select:hover {
   background: #000000;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Item Cards */

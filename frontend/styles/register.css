@@ -1,3 +1,41 @@
+/* Add smooth page transition effects to the register page to match the login page */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #FFFFFF;
+    color: #000000;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+a {
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.main-content {
+    animation: slideUp 0.5s ease-in-out forwards;
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Additional styles for register page */
 .register-container {
     background: #f8f8f8;

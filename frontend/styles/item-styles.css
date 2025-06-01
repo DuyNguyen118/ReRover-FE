@@ -16,7 +16,7 @@
 }
 
 body {
-  font-family: "Outfit", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   background-color: #ffffff;
   color: #000000;
   line-height: 1.6;
@@ -340,7 +340,7 @@ body {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 16px;
-  font-family: "Outfit", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -376,7 +376,7 @@ body {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 16px;
-  font-family: "Outfit", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
