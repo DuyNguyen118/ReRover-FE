@@ -35,7 +35,7 @@
                         
                         <div class="form-actions">
                             <button type="submit" class="login-btn">Login</button>
-                            <a href="#forgot" class="forgot-password">Forgot Password?</a>
+                            <a href="#" class="forgot-password">Forgot Password?</a>
                         </div>
                     </form>
                 </div>
@@ -48,7 +48,54 @@
     </main>
 
     <div id="footer"></div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Reset Password</h2>
+            <p class="subtitle">Enter your email to receive a verification code</p>
+            
+            <form id="forgotPasswordForm" novalidate>
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <input type="email" id="resetEmail" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div id="verificationCodeGroup" class="form-group" style="display: none;">
+                    <label for="verificationCode">Verification Code</label>
+                    <input type="text" id="verificationCode" name="code" placeholder="Enter verification code" formnovalidate>
+                    <p class="resend-code">Didn't receive a code? <a href="#" id="resendCode">Resend</a></p>
+                </div>
+                
+                <div class="form-group" id="newPasswordGroup" style="display: none;">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" formnovalidate>
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" formnovalidate>
+                </div>
+                
+                <button type="submit" id="resetPasswordBtn" class="reset-btn">Send Verification Code</button>
+                <button type="button" id="verifyCodeBtn" class="verify-btn" style="display: none;">Verify Code</button>
+                <button type="button" id="updatePasswordBtn" class="update-btn" style="display: none;">Update Password</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        async function handleResponse(response) {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+    } else {
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Invalid response from server');
+        }
+    }
+}
         // Load header and footer components
         fetch('components/header.html')
             .then(response => response.text())
@@ -62,6 +109,9 @@
                 document.getElementById('footer').innerHTML = html;
             });
     </script>
+
+    
     <script src="scripts/login.js"></script>
+    <script src="scripts/forgotPassword.js"></script>
 </body>
 </html>
