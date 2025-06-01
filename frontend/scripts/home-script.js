@@ -189,10 +189,11 @@ async function fetchFoundItems() {
 function createFoundItemCard(item) {
     return `
         <div class="item-card" data-id="${item.id}">
-            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.name || 'Found item'}" class="item-image">
+            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.title || 'Found item'}" class="item-image">
             <div class="item-info">
-                <h3 class="item-name">${item.name || 'Unnamed Item'}</h3>
+                <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
+                <p class="item-category">Category: ${item.category || 'Not specified'}</p>
                 <p class="item-date">Found on: ${item.foundDate || new Date().toLocaleDateString()}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
@@ -328,10 +329,11 @@ async function fetchLostItems() {
 function createLostItemCard(item) {
     return `
         <div class="item-card" data-id="${item.id}">
-            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.name || 'Lost item'}" class="item-image">
+            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.title || 'Lost item'}" class="item-image">
             <div class="item-info">
-                <h3 class="item-name">${item.name || 'Unnamed Item'}</h3>
+                <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
+                <p class="item-category">Category: ${item.category || 'Not specified'}</p>
                 <p class="item-date">Lost on: ${item.lostDate || new Date().toLocaleDateString()}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
