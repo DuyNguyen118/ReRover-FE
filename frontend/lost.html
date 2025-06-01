@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReRover - LFS | Lost</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/home-styles.css">
     <link rel="stylesheet" href="styles/item-styles.css">
     <link rel="stylesheet" href="components/header.css">
     <link rel="stylesheet" href="components/footer.css">
@@ -62,9 +62,16 @@
                 </div>
             </div>
             
-            <div class="items-list" id="items-container">
-                <!-- Items will be dynamically loaded here -->
-            </div>
+            <main class="main-content">
+                <div class="lost-items-container">
+                    <div class="items-header">
+                        <h1>Lost Items</h1>
+                    </div>
+                    <div class="items-list">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </main>
             
             <div class="loading-spinner" id="loading-spinner" style="display: none;">
                 <div class="spinner"></div>
@@ -93,13 +100,6 @@
                 document.getElementById('footer').innerHTML = html;
             });
     </script>
-    <script src="scripts/item-script.js"></script>
-    <script>
-        // Initialize lost items page
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing lost items page...');
-            initializeItemsPage('lost');
-        });
-    </script>
+    <script src="scripts/lostPage-Script.js"></script>
 </body>
 </html>
