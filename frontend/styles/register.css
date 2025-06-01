@@ -21,15 +21,32 @@
 }
 
 .register-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-row {
+    display: flex;
     gap: 30px;
+    width: 100%;
 }
 
 .form-column {
     display: flex;
     flex-direction: column;
     gap: 25px;
+    flex: 1;
+}
+
+.password-row {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+}
+
+.password-row .form-group {
+    flex: 1;
 }
 
 .register-btn {
@@ -43,7 +60,9 @@
     cursor: pointer;
     transition: background 0.3s ease;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 25px;
+    max-width: 200px;
+    align-self: flex-end;
 }
 
 .register-btn:hover {
@@ -70,4 +89,3 @@
         font-size: 36px;
     }
 }
-    
