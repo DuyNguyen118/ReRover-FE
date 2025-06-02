@@ -1,3 +1,6 @@
+// API Configuration
+const API_BASE_URL = 'http://localhost:8080/api';
+
 // FAQ functionality
 document.addEventListener('DOMContentLoaded', function() {
     const faqItems = document.querySelectorAll('.faq-item');
@@ -146,9 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Base URL for the API
-const API_BASE_URL = 'http://localhost:8080/api';
-
 // Function to fetch found items from the API
 async function fetchFoundItems() {
     try {
@@ -187,14 +187,19 @@ async function fetchFoundItems() {
 
 // Function to create item card HTML for found items
 function createFoundItemCard(item) {
+    // Construct the full image URL if imageUrl exists
+    const imageUrl = item.imageUrl 
+        ? `${API_BASE_URL}/found-item/files/${encodeURIComponent(item.imageUrl)}`
+        : 'images/placeholder.jpg';
+
     return `
         <div class="item-card" data-id="${item.id}">
-            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.title || 'Found item'}" class="item-image">
+            <img src="${imageUrl}" alt="${item.title || 'Found item'}" class="item-image">
             <div class="item-info">
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
                 <p class="item-category">Category: ${item.category || 'Not specified'}</p>
-                <p class="item-date">Found on: ${item.foundDate || new Date().toLocaleDateString()}</p>
+                <p class="item-date">Found on: ${new Date(item.foundDate).toLocaleDateString() || 'Unknown date'}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
                     <button class="claim-btn">Claim</button>
@@ -327,14 +332,19 @@ async function fetchLostItems() {
 
 // Function to create item card HTML for lost items
 function createLostItemCard(item) {
+    // Construct the full image URL if imageUrl exists
+    const imageUrl = item.imageUrl 
+        ? `${API_BASE_URL}/lost-item/files/${encodeURIComponent(item.imageUrl)}`
+        : 'images/placeholder.jpg';
+
     return `
         <div class="item-card" data-id="${item.id}">
-            <img src="${item.imageUrl || 'images/placeholder.jpg'}" alt="${item.title || 'Lost item'}" class="item-image">
+            <img src="${imageUrl}" alt="${item.title || 'Lost item'}" class="item-image">
             <div class="item-info">
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
                 <p class="item-category">Category: ${item.category || 'Not specified'}</p>
-                <p class="item-date">Lost on: ${item.lostDate || new Date().toLocaleDateString()}</p>
+                <p class="item-date">Lost on: ${new Date(item.lostDate).toLocaleDateString() || 'Unknown date'}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
                     <button class="claim-btn">Claim</button>
@@ -344,7 +354,7 @@ function createLostItemCard(item) {
     `;
 }
 
-// Function to render found items in the UI
+// Function to render lost items in the UI
 async function renderLostItems(type = null) {
     const container = document.querySelector('.lost-items-container .items-list');
     if (!container) {
