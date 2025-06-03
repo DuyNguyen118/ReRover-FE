@@ -708,3 +708,376 @@ body {
   outline: 2px solid #b9ff66;
   outline-offset: 2px;
 }
+
+/* Match Item Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-20px);
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+  to {
+      transform: translateY(0);
+  }
+}
+
+.modal h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 10px;
+}
+
+.modal .subtitle {
+  font-size: 15px;
+  color: #666666;
+  margin-bottom: 25px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 28px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #000000;
+}
+
+/* Form styles */
+.modal .form-group {
+  margin-bottom: 20px;
+}
+
+.modal label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333333;
+}
+
+.modal input[type="email"],
+.modal input[type="password"],
+.modal input[type="text"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background-color: #F8F8F8;
+  margin-bottom: 5px;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: #B9FF66;
+  box-shadow: 0 0 0 3px rgba(185, 255, 102, 0.2);
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .modal-content {
+      margin: 0 20px;
+      padding: 30px 20px;
+  }
+  
+  .modal h2 {
+      font-size: 24px;
+  }
+  
+  .modal .subtitle {
+      font-size: 14px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-content {
+      flex-direction: column;
+      gap: 20px;
+  }
+
+  .nav-links {
+      gap: 20px;
+  }
+
+  .main-content {
+      padding: 20px 0 40px;
+  }
+
+  .login-container {
+      grid-template-columns: 1fr;
+      padding: 40px 30px;
+      gap: 40px;
+  }
+
+  .login-form-section h1 {
+      font-size: 36px;
+  }
+
+  .form-actions {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+  .footer-content {
+      grid-template-columns: 1fr;
+      gap: 40px;
+  }
+
+  .footer-bottom {
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
+  }
+
+  .newsletter {
+      flex-direction: column;
+      align-items: stretch;
+  }
+}
+
+/* Add to existing animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Claim Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes modalSlideIn {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-claim-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 5px;
+    line-height: 1;
+}
+
+.close-claim-modal:hover {
+    color: #000;
+}
+
+#claimForm .form-group {
+    margin-bottom: 20px;
+}
+
+#claimForm label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+#claimForm input[type="text"],
+#claimForm input[type="email"],
+#claimForm input[type="tel"],
+#claimForm textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.3s;
+    font-family: 'Outfit', sans-serif;
+}
+
+#claimForm textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+#claimForm textarea:focus {
+    outline: none;
+    border-color: #b9ff66;
+    box-shadow: 0 0 0 2px rgba(185, 255, 102, 0.2);
+}
+
+.submit-claim-btn {
+    background: #b9ff66;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: auto;
+    min-width: 425px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: none;
+    letter-spacing: normal;
+    font-family: "Outfit", sans-serif;
+}
+
+.submit-claim-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.submit-claim-btn:hover,
+.submit-claim-btn:focus {
+    background: #a8e055;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(185, 255, 102, 0.3);
+}
+
+.submit-claim-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.submit-claim-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.submit-claim-btn:hover::before,
+.submit-claim-btn:focus::before {
+    left: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 25px 20px;
+        margin: 20px;
+        max-width: 100%;
+    }
+    
+    #claimForm input[type="text"],
+    #claimForm input[type="email"],
+    #claimForm input[type="tel"],
+    #claimForm textarea {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    
+    .submit-claim-btn {
+        padding: 8px 16px;
+        font-size: 15px;
+    }
+}
+
+/* Add to home-styles.css */
+.user-posts-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.user-post-item {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-post-item:hover {
+  background-color: #f8f8f8;
+  border-color: #b9ff66;
+}
+
+.user-post-item.selected {
+  background-color: #f0f8e0;
+  border-color: #b9ff66;
+}
+
+.user-post-item h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.user-post-item p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
