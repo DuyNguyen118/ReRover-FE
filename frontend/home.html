@@ -176,7 +176,31 @@
     </main>
 
     <div id="footer"></div>
-    
+
+    <!-- Claim Item Modal -->
+    <!-- In your claim modal -->
+    <div class="modal" id="claimModal">
+        <div class="modal-content">
+            <span class="close-claim-modal">&times;</span>
+            <h2>Claim Request</h2>
+            <p>Select one of your posts to link with this claim:</p>
+        
+            <!-- User's posts will be loaded here -->
+            <div id="userPostsList" class="user-posts-list">
+                <!-- Posts will be loaded here dynamically -->
+            </div>
+
+            <form id="claimForm">
+                <input type="hidden" id="selectedPostId" name="selectedPostId">
+                <div class="form-group">
+                    <label for="claimMessage">Message to the owner:</label>
+                    <textarea id="claimMessage" name="message" required placeholder="Please provide details about why you think this is your item..."></textarea>
+                </div>
+                <button type="submit" class="submit-claim-btn">Submit Claim</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Load header and footer components
         async function loadComponents() {

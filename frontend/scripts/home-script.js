@@ -72,7 +72,28 @@ document.addEventListener('DOMContentLoaded', function() {
     claimBtns.forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            alert('Claim functionality would open here');
+            const itemCard = this.closest('.item-card');
+            const itemId = itemCard.dataset.id;
+            const itemName = itemCard.querySelector('.item-name').textContent;
+            
+            // Set the item name in the modal
+            const modalTitle = document.querySelector('#claimModal h2');
+            if (modalTitle) {
+                modalTitle.textContent = `Claim: ${itemName}`;
+            }
+            
+            // Store the item ID in the form for submission
+            const claimForm = document.getElementById('claimForm');
+            if (claimForm) {
+                claimForm.dataset.itemId = itemId;
+            }
+            
+            // Show the modal
+            const modal = document.getElementById('claimModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
         });
     });
 });
@@ -193,7 +214,7 @@ function createFoundItemCard(item) {
         : 'images/placeholder.jpg';
 
     return `
-        <div class="item-card" data-id="${item.id}">
+        <div class="item-card" data-id="${item.id}" data-item-id="${item.id}" data-item-type="found">
             <img src="${imageUrl}" alt="${item.title || 'Found item'}" class="item-image">
             <div class="item-info">
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
@@ -245,7 +266,6 @@ async function renderFoundItems(type = null) {
         }
 
         container.innerHTML = recentItems.map(createFoundItemCard).join('');
-        attachFoundItemListeners();
     } catch (error) {
         console.error('Error in renderFoundItems:', error);
         container.innerHTML = `
@@ -255,34 +275,6 @@ async function renderFoundItems(type = null) {
                 <button onclick="renderFoundItems(${type ? `'${type}'` : ''})">Try Again</button>
             </div>`;
     }
-}
-
-// Function to attach event listeners to found item cards
-function attachFoundItemListeners() {
-    // View detail button click
-    document.querySelectorAll('.view-detail-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const itemId = this.closest('.item-card').dataset.id;
-            // In a real app, you would navigate to a detail page or show a modal
-            alert(`Viewing details for found item ${itemId}`);
-        });
-    });
-
-    // Claim button click
-    document.querySelectorAll('.claim-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const itemCard = this.closest('.item-card');
-            const itemId = itemCard.dataset.id;
-            const itemName = itemCard.querySelector('.item-name').textContent;
-            
-            if (confirm(`Are you sure you want to claim "${itemName}"?`)) {
-                // In a real app, you would make an API call to claim the item
-                alert(`Claim request sent for "${itemName}". We'll contact you soon.`);
-            }
-        });
-    });
 }
 
 // Initialize the page when DOM is loaded
@@ -338,7 +330,7 @@ function createLostItemCard(item) {
         : 'images/placeholder.jpg';
 
     return `
-        <div class="item-card" data-id="${item.id}">
+        <div class="item-card" data-id="${item.id}" data-item-id="${item.id}" data-item-type="lost">
             <img src="${imageUrl}" alt="${item.title || 'Lost item'}" class="item-image">
             <div class="item-info">
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
@@ -390,7 +382,6 @@ async function renderLostItems(type = null) {
         }
 
         container.innerHTML = recentItems.map(createLostItemCard).join('');
-        attachLostItemListeners();
     } catch (error) {
         console.error('Error in renderLostItems:', error);
         container.innerHTML = `
@@ -402,30 +393,374 @@ async function renderLostItems(type = null) {
     }
 }
 
-// Function to attach event listeners to lost item cards
-function attachLostItemListeners() {
-    // View detail button click
-    document.querySelectorAll('.view-detail-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const itemId = this.closest('.item-card').dataset.id;
-            // In a real app, you would navigate to a detail page or show a modal
-            alert(`Viewing details for lost item ${itemId}`);
-        });
-    });
+// Consolidated item handlers for both lost and found items
+// Add this at the top of your home-script.js
+class ItemModalHandler {
+    constructor() {
+        this.claimModal = null;
+        this.claimForm = null;
+        this.closeClaimModal = null;
+        this.userPostsList = null;
+        this.selectedPostInput = null;
+        this.currentItemId = null;
+        this.currentItemType = null;
+        this.selectedPostId = null;
+        this.init();
+    }
 
-    // Claim button click
-    document.querySelectorAll('.claim-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const itemCard = this.closest('.item-card');
-            const itemId = itemCard.dataset.id;
-            const itemName = itemCard.querySelector('.item-name').textContent;
-            
-            if (confirm(`Are you sure you want to claim "${itemName}"?`)) {
-                // In a real app, you would make an API call to claim the item
-                alert(`Claim request sent for "${itemName}". We'll contact you soon.`);
+    init() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.claimModal = document.getElementById('claimModal');
+            this.claimForm = document.getElementById('claimForm');
+            this.closeClaimModal = document.querySelector('.close-claim-modal');
+            this.userPostsList = document.getElementById('userPostsList');
+            this.selectedPostInput = document.getElementById('selectedPostId');
+            this.setupEventListeners();
+        });
+    }
+
+    setupEventListeners() {
+        // Existing event listeners
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('view-detail-btn') || e.target.closest('.view-detail-btn')) {
+                this.handleViewDetail(e);
+            }
+            if (e.target.classList.contains('claim-btn') || e.target.closest('.claim-btn')) {
+                this.handleClaimButton(e);
             }
         });
-    });
+
+        // Modal close button
+        if (this.closeClaimModal) {
+            this.closeClaimModal.addEventListener('click', () => this.closeModal());
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === this.claimModal) {
+                this.closeModal();
+            }
+        });
+
+        // Form submission
+        if (this.claimForm) {
+            this.claimForm.addEventListener('submit', (e) => this.handleFormSubmission(e));
+        }
+    }
+
+    async handleClaimButton(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const button = e.target.closest('.claim-btn');
+        if (!button) return;
+
+        const itemCard = button.closest('.item-card');
+        if (!itemCard) return;
+
+        // Check if user is authenticated
+        const userId = this.getCurrentUserId();
+        if (!userId) {
+            if (confirm('You need to be logged in to make a claim. Go to login page?')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
+        // Set the current item ID and type from the item card
+        this.currentItemId = itemCard.dataset.itemId;
+        this.currentItemType = itemCard.dataset.itemType;
+
+        console.log('Claim button clicked:', {
+            currentItemId: this.currentItemId,
+            currentItemType: this.currentItemType
+        });
+
+        // Show the modal
+        this.openClaimModal();
+
+        try {
+            // Fetch user's items of the opposite type
+            const posts = await this.fetchUserPosts();
+            console.log('Fetched user posts:', posts);
+            
+            if (!posts || posts.length === 0) {
+                this.userPostsList.innerHTML = `
+                    <div class="no-posts">
+                        <p>You don't have any ${this.currentItemType === 'lost' ? 'found' : 'lost'} posts.</p>
+                        <a href="/${this.currentItemType === 'lost' ? 'found' : 'lost'}.html" class="create-post-link">
+                            Create a ${this.currentItemType === 'lost' ? 'found' : 'lost'} post
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            this.renderUserPosts(posts);
+        } catch (error) {
+            console.error('Error fetching user posts:', error);
+            this.userPostsList.innerHTML = '<div class="error">Error loading posts. Please try again.</div>';
+        }
+    }
+
+    async fetchUserPosts() {
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) {
+                throw new Error('User not authenticated');
+            }
+    
+            console.log('Fetching user items for claim linking...');
+    
+            // Determine which type of items to fetch (opposite of current item type)
+            const itemType = this.currentItemType === 'lost' ? 'found' : 'lost';
+            
+            // Use the correct endpoint based on the item type
+            const endpoint = itemType === 'lost' 
+                ? `${API_BASE_URL}/lost-item/user/${userId}` 
+                : `${API_BASE_URL}/found-item/user/${userId}`;
+                
+            // Fetch user's items of the opposite type
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+    
+            if (response.status === 401) {
+                if (confirm('Your session has expired. Would you like to log in again?')) {
+                    window.location.href = '/login.html';
+                }
+                throw new Error('Session expired. Please log in again.');
+            }
+    
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                console.error('Server error:', error);
+                throw new Error(error.message || 'Failed to fetch your items');
+            }
+    
+            const items = await response.json();
+            console.log('Fetched user items:', items);
+            return items;
+    
+        } catch (error) {
+            console.error('Error in fetchUserPosts:', error);
+            throw error;
+        }
+    }
+
+    renderUserPosts(posts) {
+        this.userPostsList.innerHTML = '';
+        
+        if (!posts || posts.length === 0) {
+            this.userPostsList.innerHTML = `
+                <div class="no-posts">
+                    <p>You don't have any ${this.currentItemType} posts.</p>
+                    <a href="/${this.currentItemType}.html" class="create-post-link">Create a ${this.currentItemType} post</a>
+                </div>
+            `;
+            return;
+        }
+        
+        posts.forEach(post => {
+            const postElement = document.createElement('div');
+            postElement.className = 'user-post-item';
+            postElement.dataset.postId = post.id || post._id;
+            
+            postElement.innerHTML = `
+                <h4>${post.title || 'Untitled Post'}</h4>
+                <p>${post.description ? (post.description.substring(0, 100) + (post.description.length > 100 ? '...' : '')) : 'No description'}</p>
+                <small>Posted on: ${new Date(post.createdAt || post.date).toLocaleDateString()}</small>
+            `;
+            
+            postElement.addEventListener('click', () => this.selectPost(post.id || post._id, postElement));
+            this.userPostsList.appendChild(postElement);
+        });
+    }
+
+    selectPost(postId, postElement) {
+        // Remove selected class from all posts
+        document.querySelectorAll('.user-post-item').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Add selected class to clicked post
+        postElement.classList.add('selected');
+        this.selectedPostId = postId;
+        this.selectedPostInput.value = postId;
+    }
+
+    openClaimModal() {
+        this.claimModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        if (this.claimModal) {
+            this.claimModal.style.display = 'none';
+            document.body.style.overflow = '';
+            // Reset form
+            if (this.claimForm) {
+                this.claimForm.reset();
+            }
+            this.selectedPostId = null;
+            this.userPostsList.innerHTML = '';
+        }
+    }
+
+    async handleFormSubmission(e) {
+        e.preventDefault();
+        
+        if (!this.selectedPostId) {
+            alert('Please select one of your items to link with this claim');
+            return;
+        }
+    
+        const formData = new FormData(this.claimForm);
+        const currentUserId = this.getCurrentUserId();
+        
+        // Debug logs
+        console.log('Current item type:', this.currentItemType);
+        console.log('Current item ID (raw):', this.currentItemId, 'type:', typeof this.currentItemId);
+        console.log('Selected post ID (raw):', this.selectedPostId, 'type:', typeof this.selectedPostId);
+        console.log('Current user ID:', currentUserId);
+    
+        // Parse IDs
+        const currentItemId = parseInt(this.currentItemId, 10);
+        const selectedId = parseInt(this.selectedPostId, 10);
+        
+        console.log('Parsed currentItemId:', currentItemId);
+        console.log('Parsed selectedId:', selectedId);
+    
+        if (isNaN(currentItemId) || isNaN(selectedId)) {
+            console.error('Invalid IDs:', {
+                currentItemId: this.currentItemId,
+                selectedPostId: this.selectedPostId,
+                parsedCurrent: currentItemId,
+                parsedSelected: selectedId
+            });
+            alert('Invalid item selection. Please try again.');
+            return;
+        }
+    
+        // Create the item objects with proper type checking
+        let lostItem, foundItem;
+        
+        if (this.currentItemType === 'lost') {
+            lostItem = { id: currentItemId };
+            foundItem = { id: selectedId };
+        } else if (this.currentItemType === 'found') {
+            lostItem = { id: selectedId };
+            foundItem = { id: currentItemId };
+        } else {
+            throw new Error(`Invalid item type: ${this.currentItemType}`);
+        }
+    
+        const claimData = {
+            lostItem: lostItem,
+            foundItem: foundItem,
+            matchedByUser: { id: currentUserId },
+            lostItemUserConfirmed: false,
+            foundItemUserConfirmed: false,
+            adminApproved: false,
+            status: 'pending',
+            matchDate: new Date().toISOString(),
+            message: formData.get('message') || ''
+        };
+    
+        console.log('Final claim data being sent:', JSON.stringify(claimData, null, 2));
+    
+        try {
+            const submitButton = this.claimForm.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+    
+            const response = await fetch(`${API_BASE_URL}/item-matched`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(claimData)
+            });
+    
+            // First get the response as text
+            const responseText = await response.text();
+            let responseData;
+            
+            try {
+                // Try to parse as JSON
+                responseData = responseText ? JSON.parse(responseText) : {};
+            } catch (e) {
+                console.error('Failed to parse JSON response. Response was:', responseText);
+                throw new Error('Received invalid response from server: ' + responseText.substring(0, 100));
+            }
+    
+            console.log('Response status:', response.status);
+            console.log('Response data:', responseData);
+    
+            if (!response.ok) {
+                if (response.status === 401) {
+                    if (confirm('Your session has expired. Would you like to log in again?')) {
+                        window.location.href = '/login.html';
+                    }
+                    return;
+                }
+                throw new Error(responseData.message || `Server error: ${response.status} ${response.statusText}`);
+            }
+    
+            console.log('Claim submission successful:', responseData);
+            alert('Claim submitted successfully! The item owner will be notified.');
+            this.closeModal();
+            window.location.reload();
+    
+        } catch (error) {
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            alert(error.message || 'Failed to submit claim. Please check the console for details and try again.');
+        } finally {
+            const submitButton = this.claimForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Claim';
+            }
+        }
+    }
+    
+    getCurrentUserId() {
+        try {
+            const userData = sessionStorage.getItem('user');
+            if (!userData) {
+                console.log('No user data found in sessionStorage');
+                return null;
+            }
+    
+            const user = JSON.parse(userData);
+            if (!user || !user.id) {
+                console.log('Invalid user data format:', user);
+                return null;
+            }
+    
+            return user.id;
+        } catch (error) {
+            console.error('Error getting current user:', error);
+            return null;
+        }
+    }
 }
+
+// Initialize the modal handler
+document.addEventListener('DOMContentLoaded', () => {
+    new ItemModalHandler();
+});
+
+// Initialize the handler
+const itemModalHandler = new ItemModalHandler();
