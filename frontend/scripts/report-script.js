@@ -326,84 +326,80 @@ function showMessage(message, type) {
 
 async function submitReport(event) {
     event.preventDefault();
-    
+    showLoadingState(true);
+
     try {
-        showLoadingState(true);
-        
-        // Get the current user
+        // Get user from session
         const user = JSON.parse(sessionStorage.getItem('user'));
         if (!user || !user.id) {
-            showMessage('Please log in to submit a report.', 'error');
-            window.location.href = '/login.html';
-            return;
+            throw new Error('User not authenticated');
         }
+
+        console.log('User from sessionStorage:', user);
+        console.log('User ID from session:', user.id, 'Type:', typeof user.id);
 
         // Get form data
         const form = document.getElementById('reportForm');
         const formData = new FormData(form);
         
-        // Create report data object with correct field names
+        // Create the data object
         const reportData = {
             title: formData.get('itemName'),
             description: formData.get('description'),
+            category: 'Other',
+            type: currentReportType,
             location: formData.get('location'),
-            lostDate: formData.get('dateTime'),
-            imageUrl: null,
-            userId: user.id
+            lost_date: formData.get('dateTime'),
+            user_id: Number(user.id),      // Try with underscore
+            userId: Number(user.id),       // Try camelCase
+            'user.id': Number(user.id)     // Try dot notation
         };
 
         console.log('Submitting report data:', reportData);
 
+        // Create FormData for the request
+        const submitFormData = new FormData();
+        
+        // Add the data as a JSON string
+        submitFormData.append('data', new Blob([JSON.stringify(reportData)], {
+            type: 'application/json'
+        }));
+
         // Handle file upload if present
         const fileInput = document.getElementById('itemImage');
         if (fileInput.files.length > 0) {
-            const fileFormData = new FormData();
-            fileFormData.append('file', fileInput.files[0]);
-            
-            try {
-                console.log('Uploading file...');
-                const uploadResponse = await fetch(`${API_BASE_URL}/upload`, {
-                    method: 'POST',
-                    body: fileFormData,
-                    credentials: 'include'
-                });
-                
-                if (!uploadResponse.ok) {
-                    const errorText = await uploadResponse.text();
-                    console.error('Upload error:', errorText);
-                    throw new Error('Failed to upload image');
-                }
-                
-                const fileData = await uploadResponse.json();
-                console.log('File upload successful:', fileData);
-                reportData.imageUrl = fileData.fileUrl || fileData.url;
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                // Continue without the image if upload fails
-            }
+            submitFormData.append('image', fileInput.files[0]);
+        }
+
+        // Log the form data being sent
+        console.log('Sending form data entries:');
+        for (let [key, value] of submitFormData.entries()) {
+            console.log(`${key}:`, key === 'data' ? JSON.parse(await value.text()) : value);
         }
 
         // Determine the endpoint based on report type
         const endpoint = currentReportType === 'lost' ? 'lost-item' : 'found-item';
-        
         console.log('Sending to endpoint:', `${API_BASE_URL}${endpoint}`);
-        
+
         // Send the report data
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(reportData),
+            body: submitFormData,
             credentials: 'include'
         });
 
         console.log('Response status:', response.status);
-        
+
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server error response:', errorText);
+            let errorText;
+            try {
+                const errorData = await response.json();
+                errorText = JSON.stringify(errorData);
+                console.error('Server error details:', errorData);
+            } catch (e) {
+                errorText = await response.text();
+            }
+            console.error('Full error response:', errorText);
             throw new Error('Failed to submit report: ' + errorText);
         }
 
@@ -415,7 +411,7 @@ async function submitReport(event) {
         
         // Redirect to the appropriate page after successful submission
         setTimeout(() => {
-            window.location.href = '/report.html'; // or '/found.html' based on report type
+            window.location.href = '/report.html';
         }, 1500);
         
     } catch (error) {
