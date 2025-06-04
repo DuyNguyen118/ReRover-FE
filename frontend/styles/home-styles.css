@@ -152,6 +152,7 @@ body {
 
 .map-container{
   min-width: 250px;
+  height: 120%;
   background: #f8f8f8;
   border: 1px solid #ddd;
   border-radius: 15px;
@@ -165,9 +166,8 @@ body {
 }
 
 .illustration-container {
-  height: 200px;
-  min-height: 200px;
-  min-width: 50%;
+  height: 100%;
+  width: 100%;
   background: #f8f8f8;
   border: 1px solid #ddd;
   border-radius: 15px;
