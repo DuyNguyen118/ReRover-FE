@@ -92,7 +92,7 @@ function showError(message) {
         
 function validateRegisterForm(data) {
     // Check if all required fields are filled
-    if (!data.student_id || !data.email || !data.password || !data.confirmPassword || !data.fullname || !data.phoneNumber || !data.socials) {
+    if (!data.student_id || !data.email || !data.password || !data.confirmPassword || !data.fullname || !data.phoneNumber) {
         alert('Please fill in all required fields');
         return false;
     }
