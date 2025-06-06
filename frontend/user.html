@@ -54,74 +54,8 @@
                             <p>Items that might match your lost/found reports</p>
                         </div>
                         
-                        <div class="matches-grid">
-                            <div class="match-card">
-                                <div class="match-header">
-                                    <span class="match-status">Potential Match</span>
-                                    <span class="match-confidence">95% Match</span>
-                                </div>
-                                <div class="match-content">
-                                    <div class="item-comparison">
-                                        <div class="your-item">
-                                            <h4>Your Lost Item</h4>
-                                            <img src="/placeholder.svg?height=120&width=120" alt="Your phone">
-                                            <div class="item-details">
-                                                <p><strong>Name:</strong> iPhone 13</p>
-                                                <p><strong>Location:</strong> Library A1</p>
-                                                <p><strong>Date:</strong> Dec 15, 2023</p>
-                                            </div>
-                                        </div>
-                                        <div class="match-arrow">↔️</div>
-                                        <div class="matched-item">
-                                            <h4>Found Item</h4>
-                                            <img src="/placeholder.svg?height=120&width=120" alt="Found phone">
-                                            <div class="item-details">
-                                                <p><strong>Name:</strong> Phone</p>
-                                                <p><strong>Location:</strong> A1, 612</p>
-                                                <p><strong>Date:</strong> Dec 15, 2023</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="match-actions">
-                                        <button class="btn-secondary" onclick="viewMatchDetails(1)">View Details</button>
-                                        <button class="btn-primary" onclick="confirmMatch(1)">Confirm Match</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="match-card">
-                                <div class="match-header">
-                                    <span class="match-status">Possible Match</span>
-                                    <span class="match-confidence">78% Match</span>
-                                </div>
-                                <div class="match-content">
-                                    <div class="item-comparison">
-                                        <div class="your-item">
-                                            <h4>Your Found Item</h4>
-                                            <img src="/placeholder.svg?height=120&width=120" alt="Your keys">
-                                            <div class="item-details">
-                                                <p><strong>Name:</strong> Car Keys</p>
-                                                <p><strong>Location:</strong> Parking Lot B</p>
-                                                <p><strong>Date:</strong> Dec 14, 2023</p>
-                                            </div>
-                                        </div>
-                                        <div class="match-arrow">↔️</div>
-                                        <div class="matched-item">
-                                            <h4>Lost Item</h4>
-                                            <img src="/placeholder.svg?height=120&width=120" alt="Lost keys">
-                                            <div class="item-details">
-                                                <p><strong>Name:</strong> Keys</p>
-                                                <p><strong>Location:</strong> Near Building B</p>
-                                                <p><strong>Date:</strong> Dec 14, 2023</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="match-actions">
-                                        <button class="btn-secondary" onclick="viewMatchDetails(2)">View Details</button>
-                                        <button class="btn-primary" onclick="confirmMatch(2)">Confirm Match</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="matches-grid" id="matchesContainer">
+                            <!-- Match cards will be inserted here by JavaScript -->
                         </div>
                     </div>
 
