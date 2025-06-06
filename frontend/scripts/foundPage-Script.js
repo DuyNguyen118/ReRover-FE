@@ -125,7 +125,7 @@ function createFoundItemCard(item) {
             <div class="item-details">
                 <h3>${item.title || 'Unnamed Item'}</h3>
                 <p><strong>Found at:</strong> ${item.location || 'Unknown location'}</p>
-                <p><strong>Date Found:</strong> ${new Date(item.foundDate).toLocaleDateString() || 'Unknown date'}</p>
+                <p><strong>Date Found:</strong> ${formatDate(item.foundDate) || 'Unknown date'}</p>
                 <div class="item-actions" style="display: flex; gap: 8px; margin-top: 12px;">
                     <button class="btn-view" onclick="viewItemDetails('${item.id}')" style="flex: 1; padding: 8px 12px; background: #000000; color: white; font-family: 'Space Grotesk', sans-serif; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
                         View Details
@@ -272,3 +272,34 @@ window.viewItemDetails = function(id) {
 };
 window.handleClaimClick = handleClaimClick;
 window.handleSearch = handleSearch;
+
+function formatDate(dateString) {
+    if (!dateString) return 'Date not specified';
+    
+    // Try to parse the date string
+    let date = new Date(dateString);
+    
+    // If the first attempt fails, try parsing as ISO string without timezone
+    if (isNaN(date.getTime())) {
+        // Try adding timezone offset if missing (common issue with some database formats)
+        date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
+    }
+    
+    // If still invalid, try parsing as timestamp
+    if (isNaN(date.getTime()) && !isNaN(dateString)) {
+        date = new Date(parseInt(dateString));
+    }
+    
+    // If all parsing attempts failed, return the original string
+    if (isNaN(date.getTime())) {
+        console.warn('Could not parse date:', dateString);
+        return dateString || 'Date not available';
+    }
+    
+    // Format the date in a user-friendly way
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+  }

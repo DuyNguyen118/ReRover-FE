@@ -249,7 +249,7 @@ function createFoundItemCard(item) {
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
                 <p class="item-category">Category: ${item.category || 'Not specified'}</p>
-                <p class="item-date">Found on: ${new Date(item.foundDate).toLocaleDateString() || 'Unknown date'}</p>
+                <p class="item-date">Found on: ${formatDate(item.foundDate) || 'Unknown date'}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
                     <button class="claim-btn">Claim</button>
@@ -374,7 +374,7 @@ function createLostItemCard(item) {
                 <h3 class="item-name">${item.title || 'Unnamed Item'}</h3>
                 <p class="item-location">Location: ${item.location || 'Not specified'}</p>
                 <p class="item-category">Category: ${item.category || 'Not specified'}</p>
-                <p class="item-date">Lost on: ${new Date(item.lostDate).toLocaleDateString() || 'Unknown date'}</p>
+                <p class="item-date">Lost on: ${formatDate(item.lostDate) || 'Unknown date'}</p>
                 <div class="item-actions">
                     <button class="view-detail-btn">View Details</button>
                     <button class="claim-btn">Claim</button>
@@ -811,3 +811,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize the handler
 const itemModalHandler = new ItemModalHandler();
+
+function formatDate(dateString) {
+    if (!dateString) return 'Date not specified';
+    
+    // Try to parse the date string
+    let date = new Date(dateString);
+    
+    // If the first attempt fails, try parsing as ISO string without timezone
+    if (isNaN(date.getTime())) {
+        // Try adding timezone offset if missing (common issue with some database formats)
+        date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
+    }
+    
+    // If still invalid, try parsing as timestamp
+    if (isNaN(date.getTime()) && !isNaN(dateString)) {
+        date = new Date(parseInt(dateString));
+    }
+    
+    // If all parsing attempts failed, return the original string
+    if (isNaN(date.getTime())) {
+        console.warn('Could not parse date:', dateString);
+        return dateString || 'Date not available';
+    }
+    
+    // Format the date in a user-friendly way
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+  }
