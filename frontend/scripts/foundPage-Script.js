@@ -1,5 +1,8 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
+let allFoundItems = [];
+let searchTimeout = null;
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Found items page initialized');
@@ -12,7 +15,7 @@ async function initializeFoundPage() {
         setupEventListeners();
     } catch (error) {
         console.error('Error initializing found page:', error);
-        showNotification('Failed to load found items. Please try again.', 'error');
+        showError('Failed to initialize page. Please refresh and try again.');
     }
 }
 
@@ -24,6 +27,7 @@ async function loadFoundItems() {
     }
 
     try {
+        showLoading(true);
         container.innerHTML = '<div class="loading-state">Loading items...</div>';
         
         const response = await fetch(`${API_BASE_URL}/found-item`, {
@@ -35,28 +39,73 @@ async function loadFoundItems() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const items = await response.json();
-        renderFoundItems(items);
+        allFoundItems = await response.json();
+        renderFoundItems(allFoundItems);
     } catch (error) {
         console.error('Error loading found items:', error);
-        container.innerHTML = `
-            <div class="error-state">
-                Failed to load items. <button onclick="loadFoundItems()">Retry</button>
-            </div>
-        `;
+        showError('Failed to load items. Please try again.');
+    } finally {
+        showLoading(false);
     }
 }
 
-function renderFoundItems(items) {
+async function renderFoundItems(items = null, type = null) {
     const container = document.querySelector('.found-items-container .items-list');
-    if (!container) return;
-
-    if (!items || items.length === 0) {
-        container.innerHTML = '<div class="no-items">No found items to display</div>';
+    const noItemsElement = document.getElementById('no-items');
+    
+    if (!container) {
+        console.error('Items list container not found');
         return;
     }
 
-    container.innerHTML = items.map(item => createFoundItemCard(item)).join('');
+    // Show loading state only if we're fetching new data
+    if (items === null) {
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading items...</p>
+            </div>`;
+        return;
+    }
+
+    try {
+        // If items is a single item, convert it to an array
+        const itemsArray = Array.isArray(items) ? items : [items];
+        
+        if (itemsArray.length === 0) {
+            container.innerHTML = `
+                <div class="no-items">
+                    <p>No items found${type ? ` in category: ${type}` : ''}.</p>
+                    <button onclick="loadFoundItems()">Refresh</button>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = itemsArray.map(item => createFoundItemCard(item)).join('');
+    } catch (error) {
+        console.error('Error rendering items:', error);
+        container.innerHTML = `
+            <div class="error-message">
+                <p>Failed to load items. Please try again later.</p>
+                <p><small>${error.message || 'Unknown error occurred'}</small></p>
+                <button onclick="loadFoundItems()">Try Again</button>
+            </div>`;
+    }
+}
+
+function showLoading(show) {
+    const loadingSpinner = document.getElementById('loading-spinner');
+    if (loadingSpinner) {
+        loadingSpinner.style.display = show ? 'flex' : 'none';
+    }
+}
+
+function showError(message) {
+    const errorElement = document.getElementById('error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
 }
 
 function createFoundItemCard(item) {
@@ -91,18 +140,111 @@ function createFoundItemCard(item) {
     `;
 }
 
-function setupEventListeners() {
-    // Add any event listeners here
-    const searchInput = document.querySelector('.search-bar input');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
+function handleSearch(e) {
+    const searchTerm = e.target.value.trim().toLowerCase();
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
     }
+    
+    // Show loading state
+    const container = document.querySelector('.found-items-container .items-list');
+    if (container) {
+        container.innerHTML = '<div class="loading-state">Searching...</div>';
+    }
+    
+    // Add debouncing (1000ms delay)
+    searchTimeout = setTimeout(() => {
+        if (!searchTerm) {
+            // If search is empty, show all items
+            renderFoundItems(allFoundItems);
+            return;
+        }
+        
+        // Filter items based on search term
+        const filteredItems = allFoundItems.filter(item => {
+            return (
+                (item.title && item.title.toLowerCase().includes(searchTerm)) ||
+                (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+                (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+                (item.category && item.category.toLowerCase().includes(searchTerm))
+            );
+        });
+        
+        // Render filtered items
+        renderFoundItems(filteredItems);
+    }, 1000);
 }
 
-function handleSearch(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    // Implement search functionality
-    console.log('Searching for:', searchTerm);
+function setupEventListeners() {
+    const searchInput = document.querySelector('.search-input');
+    const searchButton = document.querySelector('.search-btn');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch(e);
+            }
+        });
+    }
+    
+    if (searchButton) {
+        searchButton.addEventListener('click', (e) => {
+            if (searchInput) {
+                handleSearch({ target: searchInput });
+            }
+        });
+    }
+    
+    // Add event listener for category filter
+    const categorySelect = document.querySelector('.category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', (e) => {
+            const category = e.target.value;
+            if (!category) {
+                renderFoundItems(allFoundItems);
+                return;
+            }
+            
+            const filteredItems = allFoundItems.filter(item => 
+                item.category && item.category.toLowerCase() === category.toLowerCase()
+            );
+            renderFoundItems(filteredItems);
+        });
+    }
+    
+    // Add event listener for sort select
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            const sortBy = e.target.value;
+            let sortedItems = [...allFoundItems];
+            
+            switch(sortBy) {
+                case 'recent':
+                sortedItems.sort((a, b) => new Date(b.foundDate) - new Date(a.foundDate));
+                break;
+            case 'oldest':
+                sortedItems.sort((a, b) => {
+                    // Handle potential invalid dates
+                    const dateA = new Date(a.foundDate).getTime() || 0;
+                    const dateB = new Date(b.foundDate).getTime() || 0;
+                    return dateA - dateB; // Oldest first
+                });
+                break;
+                case 'az':
+                    sortedItems.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                    break;
+                case 'za':
+                    sortedItems.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+                    break;
+            }
+            
+            renderFoundItems(sortedItems);
+        });
+    }
 }
 
 function handleClaimClick(event, itemId) {
@@ -129,3 +271,4 @@ window.viewItemDetails = function(id) {
     console.log('Viewing item:', id);
 };
 window.handleClaimClick = handleClaimClick;
+window.handleSearch = handleSearch;

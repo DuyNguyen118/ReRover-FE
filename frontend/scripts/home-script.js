@@ -28,14 +28,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Search functionality
-function handleSearch() {
+async function handleSearch() {
     const searchInput = document.querySelector('.search-input');
-    const searchTerm = searchInput.value.trim();
+    const searchTerm = searchInput.value.trim().toLowerCase();
     
-    if (searchTerm) {
-        console.log('Searching for:', searchTerm);
-        // In a real app, this would filter the items
-        alert(`Searching for: ${searchTerm}`);
+    if (!searchTerm) {
+        // If search is empty, reload all items
+        renderFoundItems();
+        renderLostItems();
+        return;
+    }
+
+    console.log('Searching for:', searchTerm);
+    
+    try {
+        // Fetch both lost and found items
+        const [foundItems, lostItems] = await Promise.all([
+            fetchFoundItems(),
+            fetchLostItems()
+        ]);
+
+        // Filter found items
+        const filteredFoundItems = foundItems.filter(item => 
+            (item.title && item.title.toLowerCase().includes(searchTerm))
+        );
+
+        // Filter lost items
+        const filteredLostItems = lostItems.filter(item => 
+            (item.title && item.title.toLowerCase().includes(searchTerm))
+        );
+
+        // Render filtered items
+        renderFoundItems(filteredFoundItems);
+        renderLostItems(filteredLostItems);
+
+    } catch (error) {
+        console.error('Search error:', error);
+        alert('Error performing search. Please try again.');
     }
 }
 
@@ -231,27 +260,35 @@ function createFoundItemCard(item) {
 }
 
 // Function to render found items in the UI
-async function renderFoundItems(type = null) {
+async function renderFoundItems(items = null, type = null) {
     const container = document.querySelector('.found-items-container .items-list');
     if (!container) {
         console.error('Items list container not found');
         return;
     }
 
-    // Show loading state
-    container.innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading found items...</p>
-        </div>`;
+    // Show loading state only if we're fetching new data
+    if (items === null) {
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading found items...</p>
+            </div>`;
+    }
 
     try {
-        const items = type ? await fetchFoundItems(type) : await fetchFoundItems();
+        // If items are not provided, fetch them
+        if (items === null) {
+            items = type ? await fetchFoundItems(type) : await fetchFoundItems();
 
-        const recentItems = items
-            .sort((a, b) => new Date(b.foundDate) - new Date(a.foundDate))
-            .slice(0, 2);
-        
+            // Sort by date and get the 2 most recent items when not searching
+            if (!type) {
+                items = items
+                    .sort((a, b) => new Date(b.foundDate) - new Date(a.foundDate))
+                    .slice(0, 2);
+            }
+        }
+
         if (!Array.isArray(items)) {
             throw new Error('Invalid response from server');
         }
@@ -260,19 +297,20 @@ async function renderFoundItems(type = null) {
             container.innerHTML = `
                 <div class="no-items">
                     <p>No items found${type ? ` in category: ${type}` : ''}.</p>
-                    <button onclick="renderFoundItems(${type ? `'${type}'` : ''})">Refresh</button>
+                    <button onclick="renderFoundItems(null, ${type ? `'${type}'` : 'null'})">Refresh</button>
                 </div>`;
             return;
         }
 
-        container.innerHTML = recentItems.map(createFoundItemCard).join('');
+        // Don't limit to 2 items when searching
+        container.innerHTML = items.map(createFoundItemCard).join('');
     } catch (error) {
         console.error('Error in renderFoundItems:', error);
         container.innerHTML = `
             <div class="error-message">
                 <p>Failed to load items. Please try again later.</p>
                 <p><small>${error.message || 'Unknown error occurred'}</small></p>
-                <button onclick="renderFoundItems(${type ? `'${type}'` : ''})">Try Again</button>
+                <button onclick="renderFoundItems(null, ${type ? `'${type}'` : 'null'})">Try Again</button>
             </div>`;
     }
 }
@@ -347,27 +385,35 @@ function createLostItemCard(item) {
 }
 
 // Function to render lost items in the UI
-async function renderLostItems(type = null) {
+async function renderLostItems(items = null, type = null) {
     const container = document.querySelector('.lost-items-container .items-list');
     if (!container) {
         console.error('Items list container not found');
         return;
     }
 
-    // Show loading state
-    container.innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading lost items...</p>
-        </div>`;
+    // Show loading state only if we're fetching new data
+    if (items === null) {
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading lost items...</p>
+            </div>`;
+    }
 
     try {
-        const items = type ? await fetchLostItems(type) : await fetchLostItems();
+        // If items are not provided, fetch them
+        if (items === null) {
+            items = type ? await fetchLostItems(type) : await fetchLostItems();
 
-        const recentItems = items
-            .sort((a, b) => new Date(b.lostDate) - new Date(a.lostDate))
-            .slice(0, 2);
-        
+            // Sort by date and get the 2 most recent items when not searching
+            if (!type) {
+                items = items
+                    .sort((a, b) => new Date(b.lostDate) - new Date(a.lostDate))
+                    .slice(0, 2);
+            }
+        }
+
         if (!Array.isArray(items)) {
             throw new Error('Invalid response from server');
         }
@@ -376,19 +422,20 @@ async function renderLostItems(type = null) {
             container.innerHTML = `
                 <div class="no-items">
                     <p>No items found${type ? ` in category: ${type}` : ''}.</p>
-                    <button onclick="renderLostItems(${type ? `'${type}'` : ''})">Refresh</button>
+                    <button onclick="renderLostItems(null, ${type ? `'${type}'` : 'null'})">Refresh</button>
                 </div>`;
             return;
         }
 
-        container.innerHTML = recentItems.map(createLostItemCard).join('');
+        // Don't limit to 2 items when searching
+        container.innerHTML = items.map(createLostItemCard).join('');
     } catch (error) {
         console.error('Error in renderLostItems:', error);
         container.innerHTML = `
             <div class="error-message">
                 <p>Failed to load items. Please try again later.</p>
                 <p><small>${error.message || 'Unknown error occurred'}</small></p>
-                <button onclick="renderLostItems(${type ? `'${type}'` : ''})">Try Again</button>
+                <button onclick="renderLostItems(null, ${type ? `'${type}'` : 'null'})">Try Again</button>
             </div>`;
     }
 }
