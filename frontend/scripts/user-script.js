@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://localhost:8080/api';
+
 // Global state
 let currentPanel = "matches"
 let isDarkMode = false
@@ -9,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeDashboard()
   setupEventListeners()
   loadUserPreferences()
+  loadMatches()
   
   toggleFormFields(false);
   
@@ -148,116 +151,139 @@ function animateCounter(element, start, end, duration) {
   requestAnimationFrame(updateCounter)
 }
 
-// Match functionality
-function viewMatchDetails(matchId) {
-  const modal = document.getElementById("matchModal")
-  const modalBody = document.getElementById("modalBody")
+// Match related functions
+async function loadMatches() {
+  try {
+      const response = await fetch(`${API_BASE_URL}/matches`, {
+          method: 'GET',
+          credentials: 'include', // This is important for sending cookies
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
 
-  // Sample match data
-  const matchData = {
-    1: {
-      yourItem: {
-        name: "iPhone 13",
-        description: "Black iPhone 13, 128GB with blue case",
-        location: "Library A1",
-        date: "Dec 15, 2023",
-        image: "/placeholder.svg?height=200&width=200",
-        reporter: "You",
-      },
-      matchedItem: {
-        name: "Phone",
-        description: "Black smartphone found near study area",
-        location: "A1, 612",
-        date: "Dec 15, 2023",
-        image: "/placeholder.svg?height=200&width=200",
-        reporter: "Sarah Johnson",
-      },
-      confidence: "95%",
-      status: "Pending Confirmation",
-    },
-    2: {
-      yourItem: {
-        name: "Car Keys",
-        description: "Toyota keys with blue keychain",
-        location: "Parking Lot B",
-        date: "Dec 14, 2023",
-        image: "/placeholder.svg?height=200&width=200",
-        reporter: "You",
-      },
-      matchedItem: {
-        name: "Keys",
-        description: "Set of car keys found in parking area",
-        location: "Near Building B",
-        date: "Dec 14, 2023",
-        image: "/placeholder.svg?height=200&width=200",
-        reporter: "Mike Chen",
-      },
-      confidence: "78%",
-      status: "Under Review",
-    },
+      if (!response.ok) {
+          if (response.status === 401) {
+              // Handle unauthorized (e.g., redirect to login)
+              window.location.href = '/login.html';
+              return;
+          }
+          throw new Error(`Error: ${response.status}`);
+      }
+
+      const matches = await response.json();
+      console.log('Matches data:', matches); // Add this line
+      renderMatches(matches);
+  } catch (error) {
+      console.error('Error loading matches:', error);
+      showNotification('Failed to load matches. Please try again later.', 'error');
   }
-
-  const match = matchData[matchId]
-  if (!match) return
-
-  modalBody.innerHTML = `
-        <div class="match-details">
-            <div class="match-info-header">
-                <h4>Match Confidence: ${match.confidence}</h4>
-                <span class="status-badge">${match.status}</span>
-            </div>
-            
-            <div class="detailed-comparison">
-                <div class="item-detail-card">
-                    <h5>Your Item</h5>
-                    <img src="${match.yourItem.image}" alt="${match.yourItem.name}">
-                    <div class="item-info-detailed">
-                        <p><strong>Name:</strong> ${match.yourItem.name}</p>
-                        <p><strong>Description:</strong> ${match.yourItem.description}</p>
-                        <p><strong>Location:</strong> ${match.yourItem.location}</p>
-                        <p><strong>Date:</strong> ${match.yourItem.date}</p>
-                        <p><strong>Reported by:</strong> ${match.yourItem.reporter}</p>
-                    </div>
-                </div>
-                
-                <div class="item-detail-card">
-                    <h5>Matched Item</h5>
-                    <img src="${match.matchedItem.image}" alt="${match.matchedItem.name}">
-                    <div class="item-info-detailed">
-                        <p><strong>Name:</strong> ${match.matchedItem.name}</p>
-                        <p><strong>Description:</strong> ${match.matchedItem.description}</p>
-                        <p><strong>Location:</strong> ${match.matchedItem.location}</p>
-                        <p><strong>Date:</strong> ${match.matchedItem.date}</p>
-                        <p><strong>Reported by:</strong> ${match.matchedItem.reporter}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="match-actions-detailed">
-                <button class="btn-secondary" onclick="closeModal()">Close</button>
-                <button class="btn-secondary" onclick="contactReporter('${match.matchedItem.reporter}')">Contact Reporter</button>
-                <button class="btn-primary" onclick="confirmMatch(${matchId})">Confirm This Match</button>
-            </div>
-        </div>
-    `
-
-  modal.style.display = "block"
-  document.body.style.overflow = "hidden"
 }
 
-function confirmMatch(matchId) {
-  // Show confirmation animation
-  showNotification("Match confirmed! You will be contacted with pickup details.", "success")
+function renderMatches(matches) {
+  const container = document.getElementById('matchesContainer');
+  if (!container) return;
 
-  // Update UI to show confirmed status
-  const matchCard = document.querySelector(`[data-match-id="${matchId}"]`)
-  if (matchCard) {
-    matchCard.style.opacity = "0.7"
-    matchCard.querySelector(".match-status").textContent = "Confirmed"
-    matchCard.querySelector(".match-status").style.background = "#4CAF50"
+  if (!matches || matches.length === 0) {
+      container.innerHTML = '<div class="no-matches">No matches found. Check back later!</div>';
+      return;
   }
 
-  closeModal()
+  container.innerHTML = matches.map(match => createMatchCard(match)).join('');
+}
+
+function createMatchCard(match) {
+  // Determine if the current user is the one who found or lost the item
+  const isUserFinder = match.foundByCurrentUser;
+  const userItem = isUserFinder ? match.foundItem : match.lostItem;
+  const otherItem = isUserFinder ? match.lostItem : match.foundItem;
+  
+  const userItemType = isUserFinder ? 'Found Item' : 'Your Lost Item';
+  const otherItemType = isUserFinder ? 'Claimed Lost Item' : 'Found Item';
+
+  // Get dates - using lostDate/foundDate or createdDate as fallback
+  const userItemDate = userItem.lostDate || userItem.foundDate || userItem.createdDate;
+  const otherItemDate = otherItem.lostDate || otherItem.foundDate || otherItem.createdDate;
+
+  const getImageUrl = (imageName, itemType = 'found-item') => {
+    if (!imageName) return 'images/placeholder.jpg';
+    
+    // If it's already a full URL, return as is
+    if (imageName.startsWith('http') || imageName.startsWith('data:image')) {
+        return imageName;
+    }
+    
+    // Use the same pattern as home-script.js
+    return `${API_BASE_URL}/${itemType}/files/${encodeURIComponent(imageName)}`;
+};
+
+  return `
+      <div class="match-card" data-match-id="${match.id}">
+          <div class="match-header">
+              <span class="match-status">${match.status || 'Potential Match'}</span>
+          </div>
+          <div class="match-content">
+              <div class="item-comparison">
+                  <div class="your-item">
+                      <h4>${userItemType}</h4>
+                      <img src="${getImageUrl(userItem.imageUrl, isUserFinder ? 'found-item' : 'lost-item')}"
+                           alt="${userItem.title}">
+                      <div class="item-details">
+                          <p><strong>Name:</strong> ${userItem.title}</p>
+                          <p><strong>Location:</strong> ${userItem.location}</p>
+                          <p><strong>Date:</strong> ${formatDate(userItemDate)}</p>
+                      </div>
+                  </div>
+                  <div class="match-arrow">↔️</div>
+                  <div class="matched-item">
+                      <h4>${otherItemType}</h4>
+                      <img src="${getImageUrl(otherItem.imageUrl, isUserFinder ? 'lost-item' : 'found-item')}"
+                           alt="${otherItem.title}">
+                      <div class="item-details">
+                          <p><strong>Name:</strong> ${otherItem.title}</p>
+                          <p><strong>Location:</strong> ${otherItem.location}</p>
+                          <p><strong>Date:</strong> ${formatDate(otherItemDate)}</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="match-actions">
+                  <button class="btn-secondary" onclick="viewMatchDetails('${match.id}')">View Details</button>
+                  <button class="btn-primary" onclick="confirmMatch('${match.id}')">${isUserFinder ? 'This is the Item I Found' : 'This is My Lost Item'}</button>
+              </div>
+          </div>
+      </div>
+  `;
+}
+
+async function confirmMatch(matchId) {
+  if (!confirm('Are you sure you want to confirm this match?')) {
+      return;
+  }
+
+  try {
+      const response = await fetch(`/api/matches/${matchId}/confirm`, {
+          method: 'POST',
+          credentials: 'include', // This is important for sending cookies
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (!response.ok) {
+          if (response.status === 401) {
+              window.location.href = '/login.html';
+              return;
+          }
+          throw new Error(`Error: ${response.status}`);
+      }
+
+      showNotification('Match confirmed successfully!', 'success');
+      // Reload matches to update the UI
+      loadMatches();
+  } catch (error) {
+      console.error('Error confirming match:', error);
+      showNotification('Failed to confirm match. Please try again.', 'error');
+  }
 }
 
 function contactReporter(reporterName) {
@@ -763,5 +789,36 @@ function toggleFormFields(enable) {
   
   inputs.forEach(input => {
     input.disabled = !enable;
+  });
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'Date not specified';
+  
+  // Try to parse the date string
+  let date = new Date(dateString);
+  
+  // If the first attempt fails, try parsing as ISO string without timezone
+  if (isNaN(date.getTime())) {
+      // Try adding timezone offset if missing (common issue with some database formats)
+      date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
+  }
+  
+  // If still invalid, try parsing as timestamp
+  if (isNaN(date.getTime()) && !isNaN(dateString)) {
+      date = new Date(parseInt(dateString));
+  }
+  
+  // If all parsing attempts failed, return the original string
+  if (isNaN(date.getTime())) {
+      console.warn('Could not parse date:', dateString);
+      return dateString || 'Date not available';
+  }
+  
+  // Format the date in a user-friendly way
+  return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
   });
 }
